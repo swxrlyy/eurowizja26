@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Eurovision 2026 - Vote</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap');
+
+        :root {
+            --bg-sand: #FDF9F5;
+            --surface: #FFFFFF;
+            --border: #EADCD1;
+            --peach-light: #FBE6DC;
+            --peach-main: #ECAE92;
+            --brown-light: #D4A373;
+            --brown-main: #A87A51;
+            --brown-dark: #5B4636;
+            --text-main: #4A3A2F;
+            --text-muted: #8E7C71;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', sans-serif; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background-color: var(--bg-sand);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding-bottom: 40px;
+        }
+
+        .hidden { display: none !important; }
+
+        /* Typography & Header */
+        header { text-align: center; padding: 25px 15px; margin-bottom: 10px; animation: panDown 0.6s ease-out; }
+        h1 { font-size: 1.8rem; letter-spacing: 1px; color: var(--brown-dark); font-weight: 800; }
+        
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 15px; }
+
+        /* Flat Cards */
+        .card {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(91, 70, 54, 0.04);
+            animation: panUp 0.5s ease-out forwards;
+        }
+
+        /* Forms & Buttons */
+        input[type="text"] {
+            width: 100%; max-width: 400px; padding: 15px; border-radius: 12px;
+            border: 2px solid var(--border); background: var(--bg-sand);
+            color: var(--text-main); font-size: 1.1rem; margin: 20px auto; display: block;
+            text-align: center; transition: border-color 0.3s; font-weight: 600;
+        }
+        input[type="text"]:focus { outline: none; border-color: var(--brown-main); }
+        input[type="text"]::placeholder { color: var(--text-muted); opacity: 0.7; }
+
+        .btn {
+            background: var(--brown-main);
+            color: white; border: none; padding: 14px 28px; font-size: 1.1rem;
+            font-weight: 800; border-radius: 14px; cursor: pointer;
+            transition: background 0.2s, transform 0.1s; letter-spacing: 0.5px;
+            opacity: 0; animation: panFromSide 0.5s ease-out forwards;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn:hover { background: var(--brown-dark); }
+        .btn:active { transform: scale(0.96); }
+        
+        .btn-lang { background: var(--peach-light); color: var(--brown-dark); border: 2px solid var(--peach-main); margin: 10px; width: 100%; max-width: 250px; }
+        .btn-lang:hover { background: var(--peach-main); color: white; }
+
+        /* Workspace Grid */
+        .workspace { display: flex; flex-direction: column; gap: 20px; }
+        
+        /* Sticky Point Banner */
+        .status-banner {
+            position: sticky; top: 10px; z-index: 100;
+            background: var(--surface); border: 2px solid var(--peach-main); border-radius: 16px;
+            padding: 12px 20px; text-align: center; color: var(--brown-dark); font-weight: 800; font-size: 1.2rem;
+            box-shadow: 0 10px 20px rgba(253, 249, 245, 0.9);
+            display: flex; justify-content: center; align-items: center; gap: 10px;
+            animation: panDown 0.5s ease-out;
+        }
+        .status-banner span { background: var(--peach-main); padding: 4px 14px; border-radius: 10px; color: white; }
+
+        /* Country Grid */
+        .grid { display: grid; grid-template-columns: 1fr; gap: 15px; padding-bottom: 20px; }
+        
+        .country-card {
+            background: var(--surface); border: 2px solid var(--border); border-radius: 16px;
+            padding: 14px; display: flex; flex-direction: column; gap: 12px;
+            opacity: 0; transition: transform 0.2s, border-color 0.2s;
+        }
+        .country-card.disabled { opacity: 0.4 !important; pointer-events: none; filter: grayscale(80%); }
+        .country-card:active { transform: scale(0.98); }
+
+        .c-header { display: flex; align-items: center; gap: 15px; }
+        .flag { width: 44px; height: 32px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(0,0,0,0.1); }
+        .c-info { flex-grow: 1; text-align: left; }
+        .c-name { font-weight: 800; font-size: 1.15rem; color: var(--brown-dark); line-height: 1.2; }
+        .c-song { font-size: 0.9rem; color: var(--text-muted); margin-top: 2px; font-weight: 600; }
+
+        .c-actions { display: flex; gap: 10px; }
+        .btn-preview { flex: 1; background: var(--bg-sand); border: 2px solid var(--border); color: var(--brown-dark); border-radius: 10px; padding: 10px; font-weight: 800; font-size: 0.95rem; }
+        .btn-vote { flex: 2; background: var(--peach-main); color: white; border: none; border-radius: 10px; padding: 10px; font-weight: 800; font-size: 1rem; }
+        
+        .video-wrap { width: 100%; aspect-ratio: 16/9; border-radius: 10px; overflow: hidden; display: none; }
+        .video-wrap.active { display: block; animation: expandDown 0.3s ease; }
+        .video-wrap iframe { width: 100%; height: 100%; border: none; }
+
+        /* Sidebar / Bottom Panel */
+        .sidebar { background: var(--surface); border: 2px solid var(--border); border-radius: 20px; padding: 20px; animation: panUp 0.6s ease-out backwards; }
+        .sidebar h3 { color: var(--brown-main); font-size: 1.1rem; margin-bottom: 15px; text-transform: uppercase; text-align: center; font-weight: 800; letter-spacing: 1px; }
+        .slot {
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--bg-sand); border: 1px solid var(--border); padding: 10px 15px; border-radius: 12px; margin-bottom: 8px;
+            animation: panFromSide 0.5s ease-out backwards;
+        }
+        .slot-pts { background: var(--brown-light); color: white; font-weight: 800; padding: 4px 12px; border-radius: 8px; font-size: 0.95rem; }
+
+        /* Desktop Layout */
+        @media (min-width: 768px) {
+            .workspace { flex-direction: row; align-items: flex-start; }
+            .main-area { flex: 1; height: 80vh; overflow-y: auto; padding-right: 15px; }
+            .main-area::-webkit-scrollbar { width: 8px; }
+            .main-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+            .grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+            .sidebar { width: 340px; position: sticky; top: 10px; }
+        }
+
+        /* Animations */
+        @keyframes panFromSide { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes panUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes panDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes expandDown { from { opacity: 0; transform: scaleY(0.8); transform-origin: top; } to { opacity: 1; transform: scaleY(1); transform-origin: top; } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 id="header-title">Eurovision 2026</h1>
+    </header>
+
+    <div class="container">
+        
+        <!-- LANG -->
+        <div id="view-lang" class="card">
+            <h2 style="margin-bottom: 25px; color: var(--brown-dark);">Select Language</h2>
+            <button class="btn btn-lang" style="animation-delay: 0.1s;" onclick="initApp('en')">🇬🇧 English</button>
+            <button class="btn btn-lang" style="animation-delay: 0.2s;" onclick="initApp('pl')">🇵🇱 Polski</button>
+        </div>
+        
+        <!-- LOGIN -->
+        <div id="view-login" class="card hidden">
+            <h2 id="login-title" style="margin-bottom: 10px; color: var(--brown-dark);">Voter Setup</h2>
+            <p id="login-desc" style="color: var(--text-muted); margin-bottom: 20px;">Enter your name to unlock your scorecard.</p>
+            
+            <div id="gate-locked" class="hidden">
+                <h3 style="color: var(--peach-main); margin-bottom: 10px;">Voting Closed</h3>
+                <p style="color: var(--text-muted);">The host has paused submissions.</p>
+            </div>
+
+            <div id="gate-open">
+                <input type="text" id="voter-name" placeholder="Name / Imię">
+                <button class="btn" id="btn-enter" style="animation-delay: 0.1s;" onclick="startVoting()">Start Voting</button>
+            </div>
+        </div>
+
+        <!-- WORKSPACE -->
+        <div id="view-workspace" class="workspace hidden">
+            
+            <div class="main-area">
+                <div class="status-banner" id="banner">
+                    <span id="banner-pts">12</span> <div id="banner-text">Points</div>
+                </div>
+                <div id="grid" class="grid"></div>
+            </div>
+            
+            <div class="sidebar">
+                <h3 id="side-title">Your Scorecard</h3>
+                <div id="slots"></div>
+                <div id="submit-area" class="hidden" style="margin-top: 25px; text-align: center;">
+                    <button class="btn" style="width: 100%; animation-delay: 0.1s;" id="btn-submit" onclick="submit()">Submit</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUCCESS -->
+        <div id="view-success" class="card hidden">
+            <div style="font-size: 4rem; margin-bottom: 15px;">🎉</div>
+            <h2 id="success-title" style="color: var(--brown-dark); margin-bottom: 10px;">Ballot Sent!</h2>
+            <p id="success-desc" style="color: var(--text-muted);">Look at the host screen for the results.</p>
+        </div>
+
+    </div>
+
+    <script>
+        const COUNTRIES = [
+            { id: "AT", name: "Austria", artist: "COSMÓ", song: "Tanzschein", yt: "dQw4w9WgXcQ", flag: "at" },
+            { id: "AL", name: "Albania", artist: "Alis", song: "Nân", yt: "dQw4w9WgXcQ", flag: "al" },
+            { id: "AU", name: "Australia", artist: "Delta Goodrem", song: "Eclipse", yt: "dQw4w9WgXcQ", flag: "au" },
+            { id: "BE", name: "Belgium", artist: "ESSYLA", song: "Dancing on the Ice", yt: "dQw4w9WgXcQ", flag: "be" },
+            { id: "BG", name: "Bulgaria", artist: "DARA", song: "Bangaranga", yt: "dQw4w9WgXcQ", flag: "bg" },
+            { id: "HR", name: "Croatia", artist: "LELEK", song: "Andromeda", yt: "dQw4w9WgXcQ", flag: "hr" },
+            { id: "CY", name: "Cyprus", artist: "Antigoni", song: "JALLA", yt: "dQw4w9WgXcQ", flag: "cy" },
+            { id: "CZ", name: "Czechia", artist: "Daniel Zizka", song: "CROSSROADS", yt: "dQw4w9WgXcQ", flag: "cz" },
+            { id: "DK", name: "Denmark", artist: "Søren Torpegaard Lund", song: "Før Vi Går Hjem", yt: "dQw4w9WgXcQ", flag: "dk" },
+            { id: "FI", name: "Finland", artist: "Linda Lampenius x Pete Parkkonen", song: "Liekinheitin", yt: "dQw4w9WgXcQ", flag: "fi" },
+            { id: "FR", name: "France", artist: "Monroe", song: "Regarde !", yt: "dQw4w9WgXcQ", flag: "fr" },
+            { id: "DE", name: "Germany", artist: "Sarah Engels", song: "Fire", yt: "dQw4w9WgXcQ", flag: "de" },
+            { id: "GR", name: "Greece", artist: "Akylas", song: "Ferto", yt: "dQw4w9WgXcQ", flag: "gr" },
+            { id: "IL", name: "Israel", artist: "Noam Bettan", song: "Michelle", yt: "dQw4w9WgXcQ", flag: "il" },
+            { id: "IT", name: "Italy", artist: "Sal Da Vinci", song: "Per Sempre Sì", yt: "dQw4w9WgXcQ", flag: "it" },
+            { id: "LT", name: "Lithuania", artist: "Lion Ceccah", song: "Sólo Quiero Más", yt: "dQw4w9WgXcQ", flag: "lt" },
+            { id: "MT", name: "Malta", artist: "AIDAN", song: "Bella", yt: "dQw4w9WgXcQ", flag: "mt" },
+            { id: "MD", name: "Moldova", artist: "Satoshi", song: "Viva, Moldova!", yt: "dQw4w9WgXcQ", flag: "md" },
+            { id: "NO", name: "Norway", artist: "JONAS LOVV", song: "YA YA YA", yt: "dQw4w9WgXcQ", flag: "no" },
+            { id: "PL", name: "Poland", artist: "ALICJA", song: "Pray", yt: "dQw4w9WgXcQ", flag: "pl" },
+            { id: "RO", name: "Romania", artist: "Alexandra Căpitănescu", song: "Choke Me", yt: "dQw4w9WgXcQ", flag: "ro" },
+            { id: "SR", name: "Serbia", artist: "LAVINA", song: "Kraj Mene", yt: "dQw4w9WgXcQ", flag: "rs" },
+            { id: "SE", name: "Sweden", artist: "FELICIA", song: "My System", yt: "dQw4w9WgXcQ", flag: "se" },
+            { id: "UA", name: "Ukraine", artist: "LELÉKA", song: "Ridnym", yt: "dQw4w9WgXcQ", flag: "ua" },
+            { id: "GB", name: "United Kingdom", artist: "LOOK MUM NO COMPUTER", song: "Eins, Zwei, Drei", yt: "dQw4w9WgXcQ", flag: "gb" }
+        ];
+
+        const TIERS = [1, 3, 5, 7, 10, 12];
+        const STORE_KEY = "ESC_BALLOTS_26";
+        const LOCK_KEY = "ESC_LOCK_26";
+
+        let lang = "en", name = "", tierIdx = 0, ballot = {};
+
+        const i18n = {
+            en: { logTitle: "Voter Setup", logDesc: "Enter your name to unlock your scorecard.", btnEnter: "Start Voting", errName: "Please enter your name.", errLock: "Voting is locked.", txtAssign: "Assigning", txtPts: "Points", txtPreview: "Preview", txtGive: "Give", txtReview: "Review Ballot", sideTitle: "Your Scorecard", btnSubmit: "Submit Ballot", succTitle: "Ballot Sent!", succDesc: "Look at the host screen for the results." },
+            pl: { logTitle: "Rejestracja", logDesc: "Wpisz imię, aby otworzyć kartę do głosowania.", btnEnter: "Rozpocznij", errName: "Proszę podać imię.", errLock: "Głosowanie zablokowane.", txtAssign: "Przyznajesz", txtPts: "Punktów", txtPreview: "Podgląd", txtGive: "Daj", txtReview: "Potwierdź", sideTitle: "Twoje Punkty", btnSubmit: "Wyślij Głos", succTitle: "Wysłano!", succDesc: "Spójrz na ekran główny, by zobaczyć wyniki." }
+        };
+
+        function show(id) { document.querySelectorAll('.container > div').forEach(d => d.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
+
+        function initApp(l) {
+            lang = l; const t = i18n[lang];
+            document.getElementById('login-title').innerText = t.logTitle;
+            document.getElementById('login-desc').innerText = t.logDesc;
+            document.getElementById('btn-enter').innerText = t.btnEnter;
+            document.getElementById('side-title').innerText = t.sideTitle;
+            document.getElementById('btn-submit').innerText = t.btnSubmit;
+            document.getElementById('success-title').innerText = t.succTitle;
+            document.getElementById('success-desc').innerText = t.succDesc;
+            
+            show('view-login');
+            if (localStorage.getItem(LOCK_KEY) === "true") { document.getElementById('gate-open').classList.add('hidden'); document.getElementById('gate-locked').classList.remove('hidden'); }
+        }
+
+        function startVoting() {
+            const input = document.getElementById('voter-name').value.trim();
+            if(!input) return alert(i18n[lang].errName);
+            if(localStorage.getItem(LOCK_KEY) === "true") return alert(i18n[lang].errLock);
+            
+            name = input;
+            document.getElementById('header-title').innerText = name;
+            show('view-workspace');
+            buildGrid();
+        }
+
+        function buildGrid() {
+            const grid = document.getElementById('grid'); grid.innerHTML = '';
+            const bannerPts = document.getElementById('banner-pts');
+            const bannerText = document.getElementById('banner-text');
+            const t = i18n[lang];
+
+            if(tierIdx >= TIERS.length) {
+                bannerPts.innerText = "✓"; bannerText.innerText = t.txtReview;
+                grid.innerHTML = `<div class="card" style="margin-top: 20px;"><h3 style="color:var(--brown-dark)">Complete!</h3><p style="color:var(--text-muted); margin-top:5px;">Check your sidebar/bottom summary.</p></div>`;
+                document.getElementById('submit-area').classList.remove('hidden');
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                return;
+            }
+
+            const pts = TIERS[tierIdx];
+            bannerPts.innerText = pts; bannerText.innerText = `${t.txtAssign} ${pts} ${t.txtPts}`;
+            const used = Object.values(ballot);
+
+            COUNTRIES.forEach((c, i) => {
+                const card = document.createElement('div');
+                card.className = `country-card ${used.includes(c.id) ? 'disabled' : ''}`;
+                // Staggered pan animation for each card
+                card.style.animation = `panFromSide 0.4s ease-out ${i * 0.04}s forwards`;
+                
+                card.innerHTML = `
+                    <div class="c-header">
+                        <img src="https://flagcdn.com/w80/${c.flag}.png" class="flag">
+                        <div class="c-info">
+                            <div class="c-name">${c.name}</div>
+                            <div class="c-song">${c.artist}</div>
+                        </div>
+                    </div>
+                    <div class="video-wrap" id="vid-${c.id}"></div>
+                    <div class="c-actions">
+                        <button class="btn btn-preview" onclick="togVid('${c.id}', '${c.yt}')" style="animation:none; opacity:1;">${t.txtPreview}</button>
+                        <button class="btn btn-vote" onclick="vote('${c.id}', ${pts})" style="animation:none; opacity:1;">${t.txtGive} ${pts}</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function togVid(id, yt) {
+            const w = document.getElementById(`vid-${id}`);
+            if(w.classList.contains('active')) { w.classList.remove('active'); w.innerHTML = ''; }
+            else { w.classList.add('active'); w.innerHTML = `<iframe src="https://www.youtube.com/embed/${yt}?autoplay=1" allow="autoplay; fullscreen"></iframe>`; }
+        }
+
+        function vote(cid, pts) {
+            ballot[pts] = cid;
+            const c = COUNTRIES.find(x => x.id === cid);
+            const slot = document.createElement('div'); slot.className = 'slot';
+            // Pan animation for sidebar slot
+            slot.style.animationDelay = '0s';
+            slot.innerHTML = `<div style="display:flex; align-items:center; gap:12px;"><img src="https://flagcdn.com/w40/${c.flag}.png" style="width:28px; border-radius:4px; border: 1px solid rgba(0,0,0,0.1)"> <span style="font-weight:700; color:var(--brown-dark)">${c.name}</span></div> <div class="slot-pts">${pts}</div>`;
+            document.getElementById('slots').appendChild(slot);
+            tierIdx++; buildGrid();
+        }
+
+        function submit() {
+            let data = JSON.parse(localStorage.getItem(STORE_KEY) || "[]");
+            data = data.filter(b => b.name !== name);
+            data.push({ name, ballot });
+            localStorage.setItem(STORE_KEY, JSON.stringify(data));
+            show('view-success');
+        }
+    </script>
+</body>
+</html>

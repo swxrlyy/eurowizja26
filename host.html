@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eurovision 2026 - Master Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap');
+
+        :root {
+            --bg-sand: #FDF9F5;
+            --surface: #FFFFFF;
+            --border: #EADCD1;
+            --peach-light: #FBE6DC;
+            --peach-main: #ECAE92;
+            --brown-light: #D4A373;
+            --brown-main: #A87A51;
+            --brown-dark: #5B4636;
+            --text-main: #4A3A2F;
+            --text-muted: #8E7C71;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', sans-serif; }
+
+        body {
+            background-color: var(--bg-sand);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding: 30px;
+        }
+
+        .hidden { display: none !important; }
+
+        /* Typography */
+        header { text-align: center; margin-bottom: 40px; animation: panDown 0.6s ease-out; }
+        h1 { font-size: 2.2rem; letter-spacing: 2px; color: var(--brown-dark); font-weight: 900; text-transform: uppercase; }
+
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        /* Flat Cards */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; }
+        
+        .card {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 24px rgba(91, 70, 54, 0.04);
+            opacity: 0; animation: panUp 0.5s ease-out forwards;
+        }
+
+        .card h2 { font-size: 1.3rem; color: var(--brown-main); margin-bottom: 10px; font-weight: 800; }
+        .card p.desc { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px; font-weight: 600; }
+
+        /* Controls */
+        input[type="file"] { width: 100%; padding: 12px; border-radius: 12px; background: var(--bg-sand); border: 2px dashed var(--brown-light); color: var(--text-muted); cursor: pointer; font-weight: 600; }
+        
+        .btn {
+            background: var(--surface); color: var(--brown-dark); border: 2px solid var(--border);
+            padding: 14px 24px; font-size: 1rem; font-weight: 800; border-radius: 14px;
+            cursor: pointer; transition: background 0.2s, transform 0.1s;
+            width: 100%; margin-bottom: 10px; opacity: 0; animation: panFromSide 0.5s ease-out forwards;
+        }
+        .btn:hover:not(:disabled) { background: var(--bg-sand); border-color: var(--brown-light); }
+        .btn:active:not(:disabled) { transform: scale(0.96); }
+        .btn:disabled { opacity: 0.5 !important; cursor: not-allowed; animation: none; }
+        
+        .btn-primary { background: var(--peach-main); color: white; border: none; }
+        .btn-primary:hover:not(:disabled) { background: #df9b7e; border-color: transparent; }
+        
+        .btn-danger { background: #ffebeb; border-color: #ffc4c4; color: #cc4444; }
+        .btn-danger:hover:not(:disabled) { background: #ffd6d6; }
+
+        /* Lists & Previews */
+        .ledger { list-style: none; margin-bottom: 20px; max-height: 200px; overflow-y: auto; padding-right: 10px; }
+        .ledger li { background: var(--bg-sand); border: 1px solid var(--border); padding: 12px 15px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--peach-main); font-weight: 700; color: var(--brown-dark); }
+        
+        #qr-preview { margin-top: 20px; text-align: center; }
+        #qr-preview img { max-width: 180px; border-radius: 12px; border: 2px solid var(--brown-light); }
+
+        /* --- FULLSCREEN PRESENTATION MODE --- */
+        #presentation-layer {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: var(--bg-sand); z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        /* Stage 1: Individual Reveal */
+        .reveal-wrapper { text-align: center; width: 100%; max-width: 1000px; padding: 40px; }
+        
+        .r-voter { font-size: 3rem; font-weight: 900; color: var(--brown-dark); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+        .r-awards { color: var(--brown-light); font-size: 1.2rem; font-weight: 800; text-transform: uppercase; margin-bottom: 20px; }
+        
+        .r-points { 
+            font-size: 12rem; font-weight: 900; line-height: 1; margin: 20px 0;
+            color: var(--peach-main); text-shadow: 4px 4px 0px rgba(212, 163, 115, 0.2);
+        }
+        .r-points.max { color: var(--brown-main); text-shadow: 4px 4px 0px rgba(91, 70, 54, 0.15); }
+        
+        .r-country { display: flex; align-items: center; justify-content: center; gap: 30px; margin-top: 30px; }
+        .r-flag { width: 140px; height: 95px; object-fit: cover; border-radius: 12px; border: 2px solid rgba(0,0,0,0.05); box-shadow: 0 10px 20px rgba(91, 70, 54, 0.1); }
+        .r-name { font-size: 4.5rem; font-weight: 900; color: var(--brown-dark); text-transform: uppercase; }
+
+        .r-progress { position: absolute; bottom: 40px; color: var(--text-muted); font-size: 1rem; font-weight: 800; text-transform: uppercase; }
+        .pulse-dot { display: inline-block; width: 10px; height: 10px; background: var(--peach-main); border-radius: 50%; margin-right: 10px; animation: pulse 1s infinite alternate; }
+
+        /* Stage 2: Leaderboard */
+        .board-wrapper { width: 100%; max-width: 1000px; padding: 40px; height: 100vh; display: flex; flex-direction: column; }
+        .board-title { text-align: center; font-size: 2.5rem; color: var(--brown-dark); font-weight: 900; margin-bottom: 30px; text-transform: uppercase; }
+        
+        .table-container { flex-grow: 1; overflow: hidden; background: var(--surface); border-radius: 20px; border: 2px solid var(--border); box-shadow: 0 10px 30px rgba(91, 70, 54, 0.05); padding: 10px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { padding: 15px 20px; color: var(--text-muted); text-transform: uppercase; font-size: 0.9rem; font-weight: 800; text-align: left; border-bottom: 2px solid var(--border); }
+        td { padding: 15px 20px; border-bottom: 1px solid var(--bg-sand); font-size: 1.2rem; color: var(--brown-dark); font-weight: 700; }
+        
+        tr:nth-child(1) { background: var(--peach-light); border-radius: 10px; }
+        tr:nth-child(1) td { color: var(--brown-dark); font-weight: 900; font-size: 1.4rem; }
+        tr:nth-child(1) td:first-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
+        tr:nth-child(1) td:last-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
+        
+        .board-flag { width: 45px; height: 30px; border-radius: 6px; margin-right: 15px; vertical-align: middle; border: 1px solid rgba(0,0,0,0.1); }
+        .board-pts { text-align: right; color: var(--brown-main); font-weight: 900; font-size: 1.5rem; }
+
+        /* Animations */
+        @keyframes panFromSide { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes panUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes panDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Specialized presentation animations */
+        @keyframes presPanIn { 0% { opacity: 0; transform: translateX(50px); } 15% { opacity: 1; transform: translateX(0); } 85% { opacity: 1; transform: translateX(0); } 100% { opacity: 0; transform: translateX(-50px); } }
+        @keyframes presScaleIn { 0% { opacity: 0; transform: scale(0.8); } 15% { opacity: 1; transform: scale(1); } 85% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.1); } }
+        
+        @keyframes pulse { from { opacity: 0.4; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div id="dashboard-layer">
+        <header>
+            <h1>Eurovision 2026</h1>
+        </header>
+
+        <div class="container dashboard-grid">
+            
+            <div class="card" style="animation-delay: 0s;">
+                <h2>1. Setup Code</h2>
+                <p class="desc">Upload the QR code image guests scan to join.</p>
+                <input type="file" accept="image/*" onchange="uploadQR(event)">
+                <div id="qr-preview"></div>
+            </div>
+
+            <div class="card" style="animation-delay: 0.1s;">
+                <h2>2. Voting Terminal</h2>
+                <p class="desc">Live connections and ballot status.</p>
+                <ul class="ledger" id="ledger"></ul>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-danger" id="btn-lock" style="animation-delay: 0.2s;" onclick="toggleLock(true)">Lock Votes</button>
+                    <button class="btn hidden" id="btn-unlock" onclick="toggleLock(false)">Re-Open</button>
+                </div>
+            </div>
+
+            <div class="card" style="animation-delay: 0.2s; background: var(--peach-light); border-color: var(--peach-main);">
+                <h2 style="color: var(--brown-dark);">3. Broadcast</h2>
+                <p class="desc" style="color: var(--brown-main);">Launch the automated full-screen scoring sequence.</p>
+                <button class="btn btn-primary" id="btn-start" onclick="startShow()" disabled style="padding: 20px; font-size: 1.2rem; animation-delay: 0.3s;">Start Presentation</button>
+                <button class="btn" style="margin-top: 15px; font-size: 0.85rem; color: var(--text-muted); background: transparent; border-color: transparent;" onclick="clearData()">Reset Memory</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- PRESENTATION OVERLAY -->
+    <div id="presentation-layer" class="hidden">
+        
+        <div id="view-reveal" class="reveal-wrapper hidden">
+            <div class="r-voter" id="r-voter">VOTER NAME</div>
+            <div class="r-awards">Awards</div>
+            <div class="r-points" id="r-points">12</div>
+            <div class="r-country">
+                <img src="" class="r-flag" id="r-flag">
+                <div class="r-name" id="r-name">COUNTRY</div>
+            </div>
+            <div class="r-progress"><span class="pulse-dot"></span> <span id="r-prog-text"></span></div>
+        </div>
+
+        <div id="view-board" class="board-wrapper hidden">
+            <div class="board-title">Grand Final Results</div>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th style="width: 80px;">#</th><th>Country</th><th style="text-align: right;">Total Points</th></tr></thead>
+                    <tbody id="board-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const COUNTRIES = [
+            { id: "AT", name: "Austria", flag: "at" }, { id: "AL", name: "Albania", flag: "al" },
+            { id: "AU", name: "Australia", flag: "au" }, { id: "BE", name: "Belgium", flag: "be" },
+            { id: "BG", name: "Bulgaria", flag: "bg" }, { id: "HR", name: "Croatia", flag: "hr" },
+            { id: "CY", name: "Cyprus", flag: "cy" }, { id: "CZ", name: "Czechia", flag: "cz" },
+            { id: "DK", name: "Denmark", flag: "dk" }, { id: "FI", name: "Finland", flag: "fi" },
+            { id: "FR", name: "France", flag: "fr" }, { id: "DE", name: "Germany", flag: "de" },
+            { id: "GR", name: "Greece", flag: "gr" }, { id: "IL", name: "Israel", flag: "il" },
+            { id: "IT", name: "Italy", flag: "it" }, { id: "LT", name: "Lithuania", flag: "lt" },
+            { id: "MT", name: "Malta", flag: "mt" }, { id: "MD", name: "Moldova", flag: "md" },
+            { id: "NO", name: "Norway", flag: "no" }, { id: "PL", name: "Poland", flag: "pl" },
+            { id: "RO", name: "Romania", flag: "ro" }, { id: "SR", name: "Serbia", flag: "rs" },
+            { id: "SE", name: "Sweden", flag: "se" }, { id: "UA", name: "Ukraine", flag: "ua" },
+            { id: "GB", name: "United Kingdom", flag: "gb" }
+        ];
+
+        const TIERS = [1, 3, 5, 7, 10, 12];
+        const STORE_KEY = "ESC_BALLOTS_26";
+        const LOCK_KEY = "ESC_LOCK_26";
+        const QR_KEY = "ESC_QR_26";
+
+        let seq = [], seqIdx = 0, timer = null;
+
+        window.onload = () => { sync(); setInterval(sync, 2000); };
+
+        function sync() {
+            const qr = localStorage.getItem(QR_KEY);
+            if(qr) document.getElementById('qr-preview').innerHTML = `<img src="${qr}">`;
+
+            const locked = localStorage.getItem(LOCK_KEY) === "true";
+            document.getElementById('btn-lock').className = locked ? 'hidden' : 'btn btn-danger';
+            document.getElementById('btn-unlock').className = locked ? 'btn' : 'hidden';
+
+            const data = JSON.parse(localStorage.getItem(STORE_KEY) || "[]");
+            const ledg = document.getElementById('ledger'); ledg.innerHTML = '';
+            
+            if(data.length === 0) {
+                ledg.innerHTML = `<li style="justify-content:center; color:var(--text-muted); border:none; background:transparent;">No ballots yet...</li>`;
+                document.getElementById('btn-start').disabled = true;
+            } else {
+                data.forEach(d => {
+                    ledg.innerHTML += `<li><span>${d.name}</span> <span style="color:var(--brown-main); font-size:0.85rem;">SEALED ✓</span></li>`;
+                });
+                document.getElementById('btn-start').disabled = !locked;
+            }
+        }
+
+        function uploadQR(e) {
+            const f = e.target.files[0]; if(!f) return;
+            const r = new FileReader();
+            r.onload = ev => { localStorage.setItem(QR_KEY, ev.target.result); sync(); };
+            r.readAsDataURL(f);
+        }
+
+        function toggleLock(val) { localStorage.setItem(LOCK_KEY, val); sync(); }
+        
+        function clearData() {
+            if(confirm("Wipe all data?")) { localStorage.removeItem(STORE_KEY); localStorage.removeItem(LOCK_KEY); localStorage.removeItem(QR_KEY); sync(); }
+        }
+
+        /* --- SHOW LOGIC --- */
+        function startShow() {
+            const data = JSON.parse(localStorage.getItem(STORE_KEY) || "[]");
+            if(data.length === 0) return;
+
+            seq = [];
+            data.forEach(u => {
+                TIERS.forEach(pts => {
+                    if(u.ballot[pts]) seq.push({ voter: u.name, pts: pts, cid: u.ballot[pts] });
+                });
+            });
+
+            seqIdx = 0;
+            document.documentElement.requestFullscreen().catch(e => console.log(e));
+            
+            document.getElementById('dashboard-layer').classList.add('hidden');
+            document.getElementById('presentation-layer').classList.remove('hidden');
+            document.getElementById('view-reveal').classList.remove('hidden');
+            
+            playFrame();
+        }
+
+        function playFrame() {
+            if(seqIdx >= seq.length) return showBoard();
+
+            const f = seq[seqIdx];
+            const c = COUNTRIES.find(x => x.id === f.cid);
+
+            document.getElementById('r-voter').innerText = f.voter;
+            document.getElementById('r-points').innerText = f.pts;
+            document.getElementById('r-flag').src = `https://flagcdn.com/w320/${c.flag}.png`;
+            document.getElementById('r-name').innerText = c.name;
+            document.getElementById('r-prog-text').innerText = `Displaying ${seqIdx + 1} / ${seq.length}`;
+
+            const ptsEl = document.getElementById('r-points');
+            if(f.pts === 12) ptsEl.classList.add('max'); else ptsEl.classList.remove('max');
+
+            // Force animation restart with the new Pan/Scale animations
+            const view = document.getElementById('view-reveal');
+            document.getElementById('r-voter').style.animation = 'none';
+            document.getElementById('r-points').style.animation = 'none';
+            document.querySelector('.r-country').style.animation = 'none';
+            
+            view.offsetHeight; // trigger reflow
+            
+            document.getElementById('r-voter').style.animation = 'presPanIn 2.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
+            document.getElementById('r-points').style.animation = 'presScaleIn 2.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
+            document.querySelector('.r-country').style.animation = 'presPanIn 2.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
+
+            timer = setTimeout(() => { seqIdx++; playFrame(); }, 3000); 
+        }
+
+        function showBoard() {
+            if(timer) clearTimeout(timer);
+            document.getElementById('view-reveal').classList.add('hidden');
+            document.getElementById('view-board').classList.remove('hidden');
+
+            const data = JSON.parse(localStorage.getItem(STORE_KEY) || "[]");
+            let tallies = {}; COUNTRIES.forEach(c => tallies[c.id] = 0);
+            
+            data.forEach(u => {
+                Object.keys(u.ballot).forEach(p => tallies[u.ballot[p]] += parseInt(p));
+            });
+
+            let ranked = COUNTRIES.map(c => ({ ...c, score: tallies[c.id] })).sort((a,b) => b.score - a.score);
+            
+            const tbody = document.getElementById('board-tbody'); tbody.innerHTML = '';
+            ranked.forEach((r, i) => {
+                tbody.innerHTML += `
+                    <tr style="animation: panFromSide 0.5s ease-out ${i*0.05}s backwards;">
+                        <td>${i+1}</td>
+                        <td><img src="https://flagcdn.com/w80/${r.flag}.png" class="board-flag"> ${r.name}</td>
+                        <td class="board-pts">${r.score}</td>
+                    </tr>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>
