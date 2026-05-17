@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eurovision 2026 - Master Dashboard</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
 
         :root {
             --bg-sand: #FDF9F5;
@@ -18,9 +18,10 @@
             --brown-dark: #5B4636;
             --text-main: #4A3A2F;
             --text-muted: #8E7C71;
+            --gold: #ffcf33;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', sans-serif; perspective: 1500px; }
 
         body {
             background-color: var(--bg-sand);
@@ -32,106 +33,169 @@
 
         .hidden { display: none !important; }
 
-        /* Typography */
-        header { text-align: center; margin-bottom: 40px; animation: panDown 0.6s ease-out; }
-        h1 { font-size: 2.2rem; letter-spacing: 2px; color: var(--brown-dark); font-weight: 900; text-transform: uppercase; }
+        header { text-align: center; margin-bottom: 40px; animation: elasticDrop 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards; }
+        h1 { font-size: 2.8rem; letter-spacing: 4px; color: var(--brown-dark); font-weight: 900; text-transform: uppercase; animation: float 3s infinite ease-in-out; }
 
         .container { max-width: 1200px; margin: 0 auto; }
 
-        /* Flat Cards */
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
         
         .card {
             background: var(--surface);
-            border: 2px solid var(--border);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 8px 24px rgba(91, 70, 54, 0.04);
-            opacity: 0; animation: panUp 0.5s ease-out forwards;
+            border: 4px solid var(--border);
+            border-radius: 24px;
+            padding: 35px;
+            box-shadow: 0 15px 35px rgba(91, 70, 54, 0.08);
+            transform-origin: bottom center;
+            opacity: 0; animation: springUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.4) forwards;
         }
 
-        .card h2 { font-size: 1.3rem; color: var(--brown-main); margin-bottom: 10px; font-weight: 800; }
-        .card p.desc { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px; font-weight: 600; }
+        .card h2 { font-size: 1.5rem; color: var(--brown-main); margin-bottom: 12px; font-weight: 900; letter-spacing: 1px; }
+        .card p.desc { color: var(--text-muted); font-size: 1rem; margin-bottom: 25px; font-weight: 700; }
 
-        /* Controls */
-        input[type="file"] { width: 100%; padding: 12px; border-radius: 12px; background: var(--bg-sand); border: 2px dashed var(--brown-light); color: var(--text-muted); cursor: pointer; font-weight: 600; }
+        input[type="file"] { width: 100%; padding: 15px; border-radius: 16px; background: var(--bg-sand); border: 3px dashed var(--brown-light); color: var(--text-muted); cursor: pointer; font-weight: 800; transition: transform 0.2s; }
+        input[type="file"]:hover { transform: scale(1.02); }
         
         .btn {
-            background: var(--surface); color: var(--brown-dark); border: 2px solid var(--border);
-            padding: 14px 24px; font-size: 1rem; font-weight: 800; border-radius: 14px;
-            cursor: pointer; transition: background 0.2s, transform 0.1s;
-            width: 100%; margin-bottom: 10px; opacity: 0; animation: panFromSide 0.5s ease-out forwards;
+            background: var(--surface); color: var(--brown-dark); border: 3px solid var(--border);
+            padding: 16px 28px; font-size: 1.1rem; font-weight: 900; border-radius: 16px;
+            cursor: pointer; transition: all 0.2s;
+            width: 100%; margin-bottom: 10px; opacity: 0; animation: elasticSlam 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+            box-shadow: 0 6px 0 var(--border);
         }
-        .btn:hover:not(:disabled) { background: var(--bg-sand); border-color: var(--brown-light); }
-        .btn:active:not(:disabled) { transform: scale(0.96); }
-        .btn:disabled { opacity: 0.5 !important; cursor: not-allowed; animation: none; }
+        .btn:hover:not(:disabled) { background: var(--bg-sand); border-color: var(--brown-light); transform: translateY(-4px); box-shadow: 0 10px 0 var(--brown-light); }
+        .btn:active:not(:disabled) { transform: translateY(6px); box-shadow: 0 0 0 transparent; animation: none; }
+        .btn:disabled { opacity: 0.5 !important; cursor: not-allowed; animation: none; box-shadow: none; }
         
-        .btn-primary { background: var(--peach-main); color: white; border: none; }
-        .btn-primary:hover:not(:disabled) { background: #df9b7e; border-color: transparent; }
-        
-        .btn-danger { background: #ffebeb; border-color: #ffc4c4; color: #cc4444; }
-        .btn-danger:hover:not(:disabled) { background: #ffd6d6; }
+        .btn-primary { background: var(--peach-main); color: white; border: none; box-shadow: 0 6px 0 #d99171; }
+        .btn-primary:hover:not(:disabled) { background: #df9b7e; box-shadow: 0 10px 0 #cc8261; }
+        .btn-danger { background: #ffebeb; border-color: #ffc4c4; color: #cc4444; box-shadow: 0 6px 0 #ffc4c4; }
 
-        /* Lists & Previews */
         .ledger { list-style: none; margin-bottom: 20px; max-height: 200px; overflow-y: auto; padding-right: 10px; }
-        .ledger li { background: var(--bg-sand); border: 1px solid var(--border); padding: 12px 15px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--peach-main); font-weight: 700; color: var(--brown-dark); }
+        .ledger li { background: var(--bg-sand); border: 2px solid var(--border); padding: 15px; border-radius: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 6px solid var(--peach-main); font-weight: 800; font-size: 1.1rem; color: var(--brown-dark); animation: twistIn 0.5s forwards; }
         
-        #qr-preview { margin-top: 20px; text-align: center; }
-        #qr-preview img { max-width: 180px; border-radius: 12px; border: 2px solid var(--brown-light); }
+        #qr-preview { margin-top: 25px; text-align: center; }
+        #qr-preview img { max-width: 200px; border-radius: 16px; border: 4px solid var(--brown-light); animation: float 4s infinite alternate ease-in-out; }
 
-        /* --- FULLSCREEN PRESENTATION MODE --- */
+        /* --- AGGRESSIVE PRESENTATION OVERLAY --- */
         #presentation-layer {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: var(--bg-sand); z-index: 9999;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
+            overflow: hidden;
+            transition: background-color 0.5s ease;
         }
 
-        /* Stage 1: Individual Reveal */
-        .reveal-wrapper { text-align: center; width: 100%; max-width: 1000px; padding: 40px; }
+        /* The 12-Points Drumroll Dark Mode */
+        .drumroll-active { background-color: #030108 !important; }
+        .drumroll-active .r-sentence { color: #ffffff !important; }
+        .drumroll-active .r-points { animation: drumrollShake 0.1s infinite alternate !important; filter: drop-shadow(0 0 30px rgba(255, 0, 127, 0.6)); color: var(--peach-main) !important; text-shadow: none !important; }
+        .drumroll-active .r-country { display: none !important; } 
+
+        .namecard-wrapper { text-align: center; }
+        .nc-badge { font-size: 2rem; text-transform: uppercase; letter-spacing: 8px; color: var(--brown-light); font-weight: 900; margin-bottom: 15px; }
+        .nc-name { font-size: 7rem; font-weight: 900; color: var(--brown-dark); text-transform: uppercase; letter-spacing: 4px; text-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+
+        .reveal-wrapper { text-align: center; width: 100%; max-width: 1200px; padding: 40px; position: relative; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;}
         
-        .r-voter { font-size: 3rem; font-weight: 900; color: var(--brown-dark); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
-        .r-awards { color: var(--brown-light); font-size: 1.2rem; font-weight: 800; text-transform: uppercase; margin-bottom: 20px; }
+        .r-sentence { font-size: 3.5rem; font-weight: 800; color: var(--brown-dark); transition: color 0.5s; }
+        .r-sentence span.voter { color: var(--brown-main); font-weight: 900; }
+        .r-sentence span.action { color: var(--text-muted); font-weight: 700; font-size: 2.5rem; display: block; margin: 5px 0; text-transform: lowercase; }
         
         .r-points { 
-            font-size: 12rem; font-weight: 900; line-height: 1; margin: 20px 0;
-            color: var(--peach-main); text-shadow: 4px 4px 0px rgba(212, 163, 115, 0.2);
+            font-size: 14rem; font-weight: 900; line-height: 1; margin: 20px 0;
+            color: var(--peach-main); text-shadow: 6px 6px 0px rgba(212, 163, 115, 0.4);
+            display: inline-block; transition: color 0.5s;
         }
-        .r-points.max { color: var(--brown-main); text-shadow: 4px 4px 0px rgba(91, 70, 54, 0.15); }
+        .r-points.max { color: var(--brown-dark); text-shadow: 8px 8px 0px var(--peach-main), -8px -8px 0px var(--peach-light); }
         
-        .r-country { display: flex; align-items: center; justify-content: center; gap: 30px; margin-top: 30px; }
-        .r-flag { width: 140px; height: 95px; object-fit: cover; border-radius: 12px; border: 2px solid rgba(0,0,0,0.05); box-shadow: 0 10px 20px rgba(91, 70, 54, 0.1); }
-        .r-name { font-size: 4.5rem; font-weight: 900; color: var(--brown-dark); text-transform: uppercase; }
+        .r-country { display: flex; align-items: center; justify-content: center; gap: 35px; margin-top: 30px; opacity: 1; transition: opacity 0.2s, transform 0.2s; }
+        .r-flag { width: 180px; height: 120px; object-fit: cover; border-radius: 16px; border: 4px solid rgba(0,0,0,0.05); box-shadow: 0 15px 30px rgba(91, 70, 54, 0.2); }
+        .r-target-text { font-size: 5rem; font-weight: 900; color: var(--brown-dark); text-transform: uppercase; text-align: left; line-height: 1.1; }
+        .r-target-text span.connective { font-size: 2.2rem; color: var(--text-muted); font-weight: 800; display: block; text-transform: lowercase; margin-bottom: 5px; }
 
-        .r-progress { position: absolute; bottom: 40px; color: var(--text-muted); font-size: 1rem; font-weight: 800; text-transform: uppercase; }
-        .pulse-dot { display: inline-block; width: 10px; height: 10px; background: var(--peach-main); border-radius: 50%; margin-right: 10px; animation: pulse 1s infinite alternate; }
+        .r-progress { 
+            position: absolute; 
+            bottom: 30px; 
+            left: 40px; 
+            color: var(--text-muted); 
+            font-size: 1.2rem; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            z-index: 200;
+        }
 
-        /* Stage 2: Leaderboard */
-        .board-wrapper { width: 100%; max-width: 1000px; padding: 40px; height: 100vh; display: flex; flex-direction: column; }
-        .board-title { text-align: center; font-size: 2.5rem; color: var(--brown-dark); font-weight: 900; margin-bottom: 30px; text-transform: uppercase; }
+        .board-wrapper { width: 100%; max-width: 1100px; padding: 40px; height: 100vh; display: flex; flex-direction: column; }
+        .board-title { text-align: center; font-size: 3rem; color: var(--brown-dark); font-weight: 900; margin-bottom: 30px; text-transform: uppercase; text-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         
-        .table-container { flex-grow: 1; overflow: hidden; background: var(--surface); border-radius: 20px; border: 2px solid var(--border); box-shadow: 0 10px 30px rgba(91, 70, 54, 0.05); padding: 10px; }
-        table { width: 100%; border-collapse: collapse; }
-        th { padding: 15px 20px; color: var(--text-muted); text-transform: uppercase; font-size: 0.9rem; font-weight: 800; text-align: left; border-bottom: 2px solid var(--border); }
-        td { padding: 15px 20px; border-bottom: 1px solid var(--bg-sand); font-size: 1.2rem; color: var(--brown-dark); font-weight: 700; }
+        .table-container { 
+            flex-grow: 1; overflow-y: hidden; background: var(--surface); 
+            border: 4px solid var(--border); box-shadow: 0 20px 50px rgba(91, 70, 54, 0.1); 
+            padding: 15px; border-radius: 24px; position: relative;
+        }
+        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; position: relative; top: 0; }
+        th { padding: 15px 20px; color: var(--text-muted); text-transform: uppercase; font-size: 1rem; font-weight: 900; text-align: left; position: sticky; top: 0; z-index: 10; background: var(--surface); }
+        td { padding: 18px 20px; font-size: 1.4rem; color: var(--brown-dark); font-weight: 800; position: relative; background: var(--bg-sand); border: 2px solid var(--border); border-style: solid none; }
+        td:first-child { border-left-style: solid; border-top-left-radius: 16px; border-bottom-left-radius: 16px; }
+        td:last-child { border-right-style: solid; border-top-right-radius: 16px; border-bottom-right-radius: 16px; }
         
-        tr:nth-child(1) { background: var(--peach-light); border-radius: 10px; }
-        tr:nth-child(1) td { color: var(--brown-dark); font-weight: 900; font-size: 1.4rem; }
-        tr:nth-child(1) td:first-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
-        tr:nth-child(1) td:last-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
+        tr:nth-child(1) td { background: var(--peach-light); border-color: var(--peach-main); color: var(--brown-dark); font-size: 1.8rem; font-weight: 900; }
         
-        .board-flag { width: 45px; height: 30px; border-radius: 6px; margin-right: 15px; vertical-align: middle; border: 1px solid rgba(0,0,0,0.1); }
-        .board-pts { text-align: right; color: var(--brown-main); font-weight: 900; font-size: 1.5rem; }
+        .board-flag { width: 60px; height: 40px; border-radius: 8px; margin-right: 20px; vertical-align: middle; border: 2px solid rgba(0,0,0,0.1); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        
+        .board-pts { text-align: right; color: var(--brown-main); font-weight: 900; font-size: 1.8rem; cursor: help; position: relative; }
+        .board-pts:hover { color: var(--accent-pink); }
+
+        .voter-tooltip {
+            position: absolute; right: 105%; top: 50%; transform: translateY(-50%) scale(0.5);
+            background: var(--brown-dark); color: var(--bg-sand); padding: 16px 20px;
+            border-radius: 16px; box-shadow: 0 15px 35px rgba(91, 70, 54, 0.4);
+            font-size: 1.1rem; font-weight: 800; text-align: left; white-space: nowrap;
+            z-index: 100; opacity: 0; pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border: 3px solid var(--brown-main);
+        }
+        .board-pts:hover .voter-tooltip { opacity: 1; transform: translateY(-50%) scale(1); }
+        .tooltip-row { margin-bottom: 6px; border-bottom: 2px dashed rgba(255,255,255,0.15); padding-bottom: 6px; }
+        .tooltip-row:last-child { margin-bottom: 0; border-bottom: none; padding-bottom: 0; }
+        .tooltip-row span.pts-val { color: var(--peach-main); font-weight: 900; margin-left: 12px; font-size: 1.2rem; }
 
         /* Animations */
-        @keyframes panFromSide { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes panUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes panDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes elasticDrop { 0% { opacity: 0; transform: translateY(-100px) scale(0.8); } 70% { transform: translateY(15px) scale(1.05); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes elasticSlam { 0% { opacity: 0; transform: translateX(100px) scale(0.5); } 70% { transform: translateX(-15px) scale(1.1); opacity: 1; } 100% { opacity: 1; transform: translateX(0) scale(1); } }
+        @keyframes springUp { 0% { opacity: 0; transform: translateY(100px) scale(0.8); } 60% { transform: translateY(-20px) scale(1.05); opacity: 1; } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes twistIn { 0% { opacity: 0; transform: translateX(50px) rotate(10deg); } 100% { opacity: 1; transform: translateX(0) rotate(0); } }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
+
+        @keyframes hyperCinematic {
+            0% { opacity: 0; transform: scale(0.2) rotate(-15deg); filter: blur(20px); }
+            15% { opacity: 1; transform: scale(1.1) rotate(5deg); filter: blur(0); }
+            25% { transform: scale(1) rotate(0); }
+            85% { opacity: 1; transform: scale(1) rotate(0); filter: blur(0); }
+            100% { opacity: 0; transform: scale(2) rotate(10deg); filter: blur(15px); }
+        }
+        @keyframes slamFromLeft { 0% { opacity: 0; transform: translateX(-100vw) skewX(20deg); } 60% { transform: translateX(30px) skewX(-10deg); opacity: 1; } 100% { opacity: 1; transform: translateX(0) skewX(0); } }
+        @keyframes slamFromRight { 0% { opacity: 0; transform: translateX(100vw) skewX(-20deg); } 60% { transform: translateX(-30px) skewX(10deg); opacity: 1; } 100% { opacity: 1; transform: translateX(0) skewX(0); } }
+        @keyframes popOutPoints { 0% { transform: scale(0) rotate(-20deg); opacity: 0; } 50% { transform: scale(1.4) rotate(10deg); opacity: 1; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
         
-        /* Specialized presentation animations */
-        @keyframes presPanIn { 0% { opacity: 0; transform: translateX(50px); } 15% { opacity: 1; transform: translateX(0); } 85% { opacity: 1; transform: translateX(0); } 100% { opacity: 0; transform: translateX(-50px); } }
-        @keyframes presScaleIn { 0% { opacity: 0; transform: scale(0.8); } 15% { opacity: 1; transform: scale(1); } 85% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.1); } }
-        
-        @keyframes pulse { from { opacity: 0.4; } to { opacity: 1; } }
+        @keyframes explode12Points { 
+            0% { transform: scale(0); opacity: 0; } 
+            20% { transform: scale(1.8) rotate(-5deg); opacity: 1; } 
+            30% { transform: scale(1.4) rotate(5deg); } 
+            100% { transform: scale(1.5) rotate(0); opacity: 1; } 
+        }
+        @keyframes screenShake {
+            0%, 100% { transform: translate(0, 0) rotate(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translate(-8px, -8px) rotate(-1deg); }
+            20%, 40%, 60%, 80% { transform: translate(8px, 8px) rotate(1deg); }
+        }
+        @keyframes drumrollShake { from { transform: translate(-4px, -4px) rotate(-2deg); } to { transform: translate(4px, 4px) rotate(2deg); } }
+        @keyframes flipDown3D {
+            0% { opacity: 0; transform: rotateX(90deg) translateY(-50px); }
+            60% { transform: rotateX(-10deg) translateY(10px); opacity: 1; }
+            100% { opacity: 1; transform: rotateX(0) translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -163,32 +227,42 @@
             <div class="card" style="animation-delay: 0.2s; background: var(--peach-light); border-color: var(--peach-main);">
                 <h2 style="color: var(--brown-dark);">3. Broadcast</h2>
                 <p class="desc" style="color: var(--brown-main);">Launch the automated full-screen scoring sequence.</p>
-                <button class="btn btn-primary" id="btn-start" onclick="startShow()" disabled style="padding: 20px; font-size: 1.2rem; animation-delay: 0.3s;">Start Presentation</button>
-                <button class="btn" style="margin-top: 15px; font-size: 0.85rem; color: var(--text-muted); background: transparent; border-color: transparent;" onclick="clearData()">Reset Memory</button>
+                <button class="btn btn-primary" id="btn-start" onclick="startShow()" disabled style="padding: 24px; font-size: 1.4rem; animation-delay: 0.3s; box-shadow: 0 10px 0 #cc8261;">Start Presentation!</button>
+                <button class="btn" style="margin-top: 15px; font-size: 1rem; color: var(--brown-light); background: transparent; border-color: transparent; box-shadow: none;" onclick="clearData()">Reset Memory</button>
             </div>
 
         </div>
     </div>
 
-    <!-- PRESENTATION OVERLAY -->
     <div id="presentation-layer" class="hidden">
         
+        <div class="r-progress"><span id="r-prog-text"></span></div>
+
+        <div id="view-namecard" class="namecard-wrapper hidden">
+            <div class="nc-badge" id="nc-badge-text">Next Ballots / Następne Głosy</div>
+            <div class="nc-name" id="nc-voter-title">VOTER</div>
+        </div>
+
         <div id="view-reveal" class="reveal-wrapper hidden">
-            <div class="r-voter" id="r-voter">VOTER NAME</div>
-            <div class="r-awards">Awards</div>
+            <div class="r-sentence">
+                <span class="voter" id="r-voter">VOTER NAME</span>
+                <span class="action">gave / dał</span>
+            </div>
             <div class="r-points" id="r-points">12</div>
             <div class="r-country">
                 <img src="" class="r-flag" id="r-flag">
-                <div class="r-name" id="r-name">COUNTRY</div>
+                <div class="r-target-text">
+                    <span class="connective">to / do</span>
+                    <span id="r-name">COUNTRY</span>
+                </div>
             </div>
-            <div class="r-progress"><span class="pulse-dot"></span> <span id="r-prog-text"></span></div>
         </div>
 
         <div id="view-board" class="board-wrapper hidden">
-            <div class="board-title">Grand Final Results</div>
-            <div class="table-container">
-                <table>
-                    <thead><tr><th style="width: 80px;">#</th><th>Country</th><th style="text-align: right;">Total Points</th></tr></thead>
+            <div class="board-title">Grand Final Results / Wyniki Końcowe</div>
+            <div class="table-container" id="scroll-box">
+                <table id="leaderboard-table">
+                    <thead><tr><th style="width: 80px;">#</th><th>Country / Kraj</th><th style="text-align: right;">Total Points / Suma Punktów</th></tr></thead>
                     <tbody id="board-tbody"></tbody>
                 </table>
             </div>
@@ -198,34 +272,46 @@
 
     <script>
         const COUNTRIES = [
-            { id: "AT", name: "Austria", flag: "at" }, { id: "AL", name: "Albania", flag: "al" },
-            { id: "AU", name: "Australia", flag: "au" }, { id: "BE", name: "Belgium", flag: "be" },
-            { id: "BG", name: "Bulgaria", flag: "bg" }, { id: "HR", name: "Croatia", flag: "hr" },
-            { id: "CY", name: "Cyprus", flag: "cy" }, { id: "CZ", name: "Czechia", flag: "cz" },
-            { id: "DK", name: "Denmark", flag: "dk" }, { id: "FI", name: "Finland", flag: "fi" },
-            { id: "FR", name: "France", flag: "fr" }, { id: "DE", name: "Germany", flag: "de" },
-            { id: "GR", name: "Greece", flag: "gr" }, { id: "IL", name: "Israel", flag: "il" },
-            { id: "IT", name: "Italy", flag: "it" }, { id: "LT", name: "Lithuania", flag: "lt" },
-            { id: "MT", name: "Malta", flag: "mt" }, { id: "MD", name: "Moldova", flag: "md" },
-            { id: "NO", name: "Norway", flag: "no" }, { id: "PL", name: "Poland", flag: "pl" },
-            { id: "RO", name: "Romania", flag: "ro" }, { id: "SR", name: "Serbia", flag: "rs" },
-            { id: "SE", name: "Sweden", flag: "se" }, { id: "UA", name: "Ukraine", flag: "ua" },
-            { id: "GB", name: "United Kingdom", flag: "gb" }
+            { id: "DK", name: "Denmark", namePl: "Dania", flag: "dk" },
+            { id: "DE", name: "Germany", namePl: "Niemcy", flag: "de" },
+            { id: "IL", name: "Israel", namePl: "Izrael", flag: "il" },
+            { id: "BE", name: "Belgium", namePl: "Belgia", flag: "be" },
+            { id: "AL", name: "Albania", namePl: "Albania", flag: "al" },
+            { id: "GR", name: "Greece", namePl: "Grecja", flag: "gr" },
+            { id: "UA", name: "Ukraine", namePl: "Ukraina", flag: "ua" },
+            { id: "AU", name: "Australia", namePl: "Australia", flag: "au" },
+            { id: "SR", name: "Serbia", namePl: "Serbia", flag: "rs" },
+            { id: "MT", name: "Malta", namePl: "Malta", flag: "mt" },
+            { id: "CZ", name: "Czechia", namePl: "Czechy", flag: "cz" },
+            { id: "BG", name: "Bulgaria", namePl: "Bułgaria", flag: "bg" },
+            { id: "HR", name: "Croatia", namePl: "Chorwacja", flag: "hr" },
+            { id: "GB", name: "United Kingdom", namePl: "Wielka Brytania", flag: "gb" },
+            { id: "FR", name: "France", namePl: "Francja", flag: "fr" },
+            { id: "MD", name: "Moldova", namePl: "Mołdawia", flag: "md" },
+            { id: "FI", name: "Finland", namePl: "Finlandia", flag: "fi" },
+            { id: "PL", name: "Poland", namePl: "Polska", flag: "pl" },
+            { id: "LT", name: "Lithuania", namePl: "Litwa", flag: "lt" },
+            { id: "SE", name: "Sweden", namePl: "Szwecja", flag: "se" },
+            { id: "CY", name: "Cyprus", namePl: "Cypr", flag: "cy" },
+            { id: "IT", name: "Italy", namePl: "Włochy", flag: "it" },
+            { id: "NO", name: "Norway", namePl: "Norwegia", flag: "no" },
+            { id: "RO", name: "Romania", namePl: "Rumunia", flag: "ro" },
+            { id: "AT", name: "Austria", namePl: "Austria", flag: "at" }
         ];
 
-        const TIERS = [1, 3, 5, 7, 10, 12];
+        const TIERS = [2, 4, 6, 8, 10, 12];
         const STORE_KEY = "ESC_BALLOTS_26";
         const LOCK_KEY = "ESC_LOCK_26";
         const QR_KEY = "ESC_QR_26";
 
-        let seq = [], seqIdx = 0, timer = null;
+        let votersPool = [], currentVoterIdx = 0, currentTierIdx = 0;
+        let presentationTimer = null, scrollInterval = null;
 
         window.onload = () => { sync(); setInterval(sync, 2000); };
 
         function sync() {
             const qr = localStorage.getItem(QR_KEY);
             if(qr) document.getElementById('qr-preview').innerHTML = `<img src="${qr}">`;
-
             const locked = localStorage.getItem(LOCK_KEY) === "true";
             document.getElementById('btn-lock').className = locked ? 'hidden' : 'btn btn-danger';
             document.getElementById('btn-unlock').className = locked ? 'btn' : 'hidden';
@@ -237,103 +323,201 @@
                 ledg.innerHTML = `<li style="justify-content:center; color:var(--text-muted); border:none; background:transparent;">No ballots yet...</li>`;
                 document.getElementById('btn-start').disabled = true;
             } else {
-                data.forEach(d => {
-                    ledg.innerHTML += `<li><span>${d.name}</span> <span style="color:var(--brown-main); font-size:0.85rem;">SEALED ✓</span></li>`;
-                });
+                data.forEach(d => { ledg.innerHTML += `<li><span>${d.name}</span> <span style="color:var(--brown-main); font-size:0.85rem;">SEALED ✓</span></li>`; });
                 document.getElementById('btn-start').disabled = !locked;
             }
         }
 
         function uploadQR(e) {
             const f = e.target.files[0]; if(!f) return;
-            const r = new FileReader();
-            r.onload = ev => { localStorage.setItem(QR_KEY, ev.target.result); sync(); };
-            r.readAsDataURL(f);
+            const r = new FileReader(); r.onload = ev => { localStorage.setItem(QR_KEY, ev.target.result); sync(); }; r.readAsDataURL(f);
         }
 
         function toggleLock(val) { localStorage.setItem(LOCK_KEY, val); sync(); }
-        
-        function clearData() {
-            if(confirm("Wipe all data?")) { localStorage.removeItem(STORE_KEY); localStorage.removeItem(LOCK_KEY); localStorage.removeItem(QR_KEY); sync(); }
-        }
+        function clearData() { if(confirm("Wipe all data?")) { localStorage.removeItem(STORE_KEY); localStorage.removeItem(LOCK_KEY); localStorage.removeItem(QR_KEY); sync(); } }
 
-        /* --- SHOW LOGIC --- */
         function startShow() {
             const data = JSON.parse(localStorage.getItem(STORE_KEY) || "[]");
             if(data.length === 0) return;
 
-            seq = [];
-            data.forEach(u => {
-                TIERS.forEach(pts => {
-                    if(u.ballot[pts]) seq.push({ voter: u.name, pts: pts, cid: u.ballot[pts] });
+            votersPool = data; 
+            currentVoterIdx = 0;
+            currentTierIdx = 0;
+
+            document.documentElement.requestFullscreen().catch(e => console.log(e));
+            document.getElementById('dashboard-layer').classList.add('hidden');
+            document.getElementById('presentation-layer').classList.remove('hidden');
+            
+            runPresentationPipeline();
+        }
+
+        function runPresentationPipeline() {
+            if(currentVoterIdx >= votersPool.length) {
+                showFinalLeaderboard();
+                return;
+            }
+
+            if(currentTierIdx === 0) {
+                document.getElementById('view-reveal').classList.add('hidden');
+                document.getElementById('view-board').classList.add('hidden');
+                
+                const card = document.getElementById('view-namecard');
+                document.getElementById('nc-voter-title').innerText = votersPool[currentVoterIdx].name;
+                card.classList.remove('hidden');
+                
+                card.style.animation = 'none'; card.offsetHeight;
+                card.style.animation = 'hyperCinematic 3.5s cubic-bezier(0.25, 1, 0.5, 1) forwards';
+
+                presentationTimer = setTimeout(() => {
+                    card.classList.add('hidden');
+                    document.getElementById('view-reveal').classList.remove('hidden');
+                    playVoterScoresFrame();
+                }, 3500);
+            } else {
+                playVoterScoresFrame();
+            }
+        }
+
+        function playVoterScoresFrame() {
+            const currentVoterObj = votersPool[currentVoterIdx];
+            const currentPointsBracket = TIERS[currentTierIdx];
+            const targetCountryId = currentVoterObj.ballot[currentPointsBracket];
+
+            const countryMeta = COUNTRIES.find(x => x.id === targetCountryId);
+            const isTwelve = (currentPointsBracket === 12);
+            
+            document.getElementById('r-voter').innerText = currentVoterObj.name;
+            document.getElementById('r-points').innerText = currentPointsBracket;
+            document.getElementById('r-flag').src = `https://flagcdn.com/w320/${countryMeta.flag}.png`;
+            document.getElementById('r-name').innerText = `${countryMeta.name} / ${countryMeta.namePl}`;
+            
+            const totalFramesCount = votersPool.length * TIERS.length;
+            const absoluteCurrentFrameIndex = (currentVoterIdx * TIERS.length) + (currentTierIdx + 1);
+            document.getElementById('r-prog-text').innerText = `Score / Wynik: ${absoluteCurrentFrameIndex} / ${totalFramesCount}`;
+
+            const ptsEl = document.getElementById('r-points');
+            const wrapper = document.getElementById('presentation-layer');
+
+            document.querySelector('.r-sentence').style.animation = 'none';
+            ptsEl.style.animation = 'none';
+            document.querySelector('.r-country').style.animation = 'none';
+            wrapper.style.animation = 'none';
+            wrapper.classList.remove('drumroll-active');
+            document.getElementById('view-reveal').offsetHeight; 
+
+            if(isTwelve) {
+                wrapper.classList.add('drumroll-active');
+                document.querySelector('.r-sentence').style.animation = `slamFromLeft 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards`;
+                ptsEl.classList.add('max');
+
+                presentationTimer = setTimeout(() => {
+                    wrapper.classList.remove('drumroll-active');
+                    wrapper.style.animation = 'screenShake 1s cubic-bezier(.36,.07,.19,.97) both';
+                    
+                    document.querySelector('.r-country').style.animation = `slamFromRight 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards`;
+                    ptsEl.style.animation = `explode12Points 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.5) forwards`;
+
+                    presentationTimer = setTimeout(() => { advance() }, 4500);
+                }, 4000); 
+
+            } else {
+                ptsEl.classList.remove('max');
+                document.querySelector('.r-sentence').style.animation = `slamFromLeft 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards`;
+                document.querySelector('.r-country').style.animation = `slamFromRight 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards`;
+                ptsEl.style.animation = `popOutPoints 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards`;
+
+                presentationTimer = setTimeout(() => { advance() }, 3500);
+            }
+
+            function advance() {
+                currentTierIdx++;
+                if(currentTierIdx >= TIERS.length) {
+                    currentTierIdx = 0;
+                    currentVoterIdx++;
+                }
+                runPresentationPipeline();
+            }
+        }
+
+        function showFinalLeaderboard() {
+            if(presentationTimer) clearTimeout(presentationTimer);
+            document.getElementById('view-reveal').classList.add('hidden');
+            document.getElementById('view-namecard').classList.add('hidden');
+            document.getElementById('view-board').classList.remove('hidden');
+
+            const ballots = JSON.parse(localStorage.getItem(STORE_KEY) || "[]");
+            
+            let tallies = {}; 
+            let voterBreakdowns = {}; 
+            COUNTRIES.forEach(c => { 
+                tallies[c.id] = 0; 
+                voterBreakdowns[c.id] = []; 
+            });
+            
+            ballots.forEach(u => {
+                Object.keys(u.ballot).forEach(p => {
+                    const cid = u.ballot[p];
+                    const ptsValue = parseInt(p);
+                    if(tallies[cid] !== undefined) {
+                        tallies[cid] += ptsValue;
+                        voterBreakdowns[cid].push({ voterName: u.name, ptsAwarded: ptsValue });
+                    }
                 });
             });
 
-            seqIdx = 0;
-            document.documentElement.requestFullscreen().catch(e => console.log(e));
-            
-            document.getElementById('dashboard-layer').classList.add('hidden');
-            document.getElementById('presentation-layer').classList.remove('hidden');
-            document.getElementById('view-reveal').classList.remove('hidden');
-            
-            playFrame();
-        }
-
-        function playFrame() {
-            if(seqIdx >= seq.length) return showBoard();
-
-            const f = seq[seqIdx];
-            const c = COUNTRIES.find(x => x.id === f.cid);
-
-            document.getElementById('r-voter').innerText = f.voter;
-            document.getElementById('r-points').innerText = f.pts;
-            document.getElementById('r-flag').src = `https://flagcdn.com/w320/${c.flag}.png`;
-            document.getElementById('r-name').innerText = c.name;
-            document.getElementById('r-prog-text').innerText = `Displaying ${seqIdx + 1} / ${seq.length}`;
-
-            const ptsEl = document.getElementById('r-points');
-            if(f.pts === 12) ptsEl.classList.add('max'); else ptsEl.classList.remove('max');
-
-            // Force animation restart with the new Pan/Scale animations
-            const view = document.getElementById('view-reveal');
-            document.getElementById('r-voter').style.animation = 'none';
-            document.getElementById('r-points').style.animation = 'none';
-            document.querySelector('.r-country').style.animation = 'none';
-            
-            view.offsetHeight; // trigger reflow
-            
-            document.getElementById('r-voter').style.animation = 'presPanIn 2.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
-            document.getElementById('r-points').style.animation = 'presScaleIn 2.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
-            document.querySelector('.r-country').style.animation = 'presPanIn 2.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
-
-            timer = setTimeout(() => { seqIdx++; playFrame(); }, 3000); 
-        }
-
-        function showBoard() {
-            if(timer) clearTimeout(timer);
-            document.getElementById('view-reveal').classList.add('hidden');
-            document.getElementById('view-board').classList.remove('hidden');
-
-            const data = JSON.parse(localStorage.getItem(STORE_KEY) || "[]");
-            let tallies = {}; COUNTRIES.forEach(c => tallies[c.id] = 0);
-            
-            data.forEach(u => {
-                Object.keys(u.ballot).forEach(p => tallies[u.ballot[p]] += parseInt(p));
+            Object.keys(voterBreakdowns).forEach(cid => {
+                voterBreakdowns[cid].sort((a, b) => b.ptsAwarded - a.ptsAwarded);
             });
 
             let ranked = COUNTRIES.map(c => ({ ...c, score: tallies[c.id] })).sort((a,b) => b.score - a.score);
             
             const tbody = document.getElementById('board-tbody'); tbody.innerHTML = '';
             ranked.forEach((r, i) => {
+                let popupHtml = `<div class="voter-tooltip">`;
+                if(voterBreakdowns[r.id].length === 0) {
+                    popupHtml += `<div class="tooltip-row">No votes cast / Brak głosów</div>`;
+                } else {
+                    voterBreakdowns[r.id].forEach(vItem => {
+                        popupHtml += `
+                            <div class="tooltip-row">
+                                <strong>${vItem.voterName}</strong>: <span class="pts-val">+${vItem.ptsAwarded}</span>
+                            </div>`;
+                    });
+                }
+                popupHtml += `</div>`;
+
                 tbody.innerHTML += `
-                    <tr style="animation: panFromSide 0.5s ease-out ${i*0.05}s backwards;">
+                    <tr style="animation: flipDown3D 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${i*0.08}s backwards;">
                         <td>${i+1}</td>
-                        <td><img src="https://flagcdn.com/w80/${r.flag}.png" class="board-flag"> ${r.name}</td>
-                        <td class="board-pts">${r.score}</td>
+                        <td><img src="https://flagcdn.com/w80/${r.flag}.png" class="board-flag"> ${r.name} / ${r.namePl}</td>
+                        <td class="board-pts">${r.score} Pts / Pkt ${popupHtml}</td>
                     </tr>
                 `;
             });
+
+            setTimeout(() => {
+                const scrollContainer = document.getElementById('scroll-box');
+                let scrollDirection = 1; 
+                
+                if(scrollInterval) clearInterval(scrollInterval);
+                
+                scrollInterval = setInterval(() => {
+                    const maxScroll = scrollContainer.scrollHeight - scrollContainer.clientHeight;
+                    if(document.querySelector('.board-pts:hover')) return;
+
+                    scrollContainer.scrollTop += scrollDirection * 1; 
+
+                    if (scrollContainer.scrollTop >= maxScroll - 1 && scrollDirection === 1) {
+                        scrollDirection = 0;
+                        setTimeout(() => { scrollDirection = -1; }, 2000);
+                    } else if (scrollContainer.scrollTop <= 1 && scrollDirection === -1) {
+                        scrollDirection = 0;
+                        setTimeout(() => { scrollDirection = 1; }, 2000);
+                    }
+                }, 30); 
+            }, 3000); 
         }
     </script>
 </body>
+</html>
 </html>
