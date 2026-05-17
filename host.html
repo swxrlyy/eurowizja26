@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eurovision 2026 - Master Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Eurovision 2026 - Vote</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
 
@@ -18,506 +18,523 @@
             --brown-dark: #5B4636;
             --text-main: #4A3A2F;
             --text-muted: #8E7C71;
-            --gold: #ffcf33;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', sans-serif; perspective: 1500px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', sans-serif; -webkit-tap-highlight-color: transparent; }
 
         body {
             background-color: var(--bg-sand);
             color: var(--text-main);
             min-height: 100vh;
             overflow-x: hidden;
-            padding: 30px;
+            padding-bottom: 40px;
         }
 
         .hidden { display: none !important; }
 
-        header { text-align: center; margin-bottom: 40px; animation: elasticDrop 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards; }
-        h1 { font-size: 2.8rem; letter-spacing: 4px; color: var(--brown-dark); font-weight: 900; text-transform: uppercase; animation: float 3s infinite ease-in-out; }
-
-        .container { max-width: 1200px; margin: 0 auto; }
-
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
+        header { text-align: center; padding: 25px 15px; margin-bottom: 10px; animation: panDown 0.6s ease-out; }
+        h1 { font-size: 1.8rem; letter-spacing: 1px; color: var(--brown-dark); font-weight: 800; }
         
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 15px; }
+
         .card {
             background: var(--surface);
-            border: 4px solid var(--border);
-            border-radius: 24px;
-            padding: 35px;
-            box-shadow: 0 15px 35px rgba(91, 70, 54, 0.08);
-            transform-origin: bottom center;
-            opacity: 0; animation: springUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.4) forwards;
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(91, 70, 54, 0.04);
+            animation: panUp 0.5s ease-out forwards;
         }
 
-        .card h2 { font-size: 1.5rem; color: var(--brown-main); margin-bottom: 12px; font-weight: 900; letter-spacing: 1px; }
-        .card p.desc { color: var(--text-muted); font-size: 1rem; margin-bottom: 25px; font-weight: 700; }
+        input[type="text"] {
+            width: 100%; max-width: 400px; padding: 15px; border-radius: 12px;
+            border: 2px solid var(--border); background: var(--bg-sand);
+            color: var(--text-main); font-size: 1.1rem; margin: 20px auto; display: block;
+            text-align: center; transition: border-color 0.3s; font-weight: 600;
+        }
+        input[type="text"]:focus { outline: none; border-color: var(--brown-main); }
 
-        input[type="file"] { width: 100%; padding: 15px; border-radius: 16px; background: var(--bg-sand); border: 3px dashed var(--brown-light); color: var(--text-muted); cursor: pointer; font-weight: 800; transition: transform 0.2s; }
-        input[type="file"]:hover { transform: scale(1.02); }
-        
         .btn {
-            background: var(--surface); color: var(--brown-dark); border: 3px solid var(--border);
-            padding: 16px 28px; font-size: 1.1rem; font-weight: 900; border-radius: 16px;
-            cursor: pointer; transition: all 0.2s;
-            width: 100%; margin-bottom: 10px; opacity: 0; animation: elasticSlam 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
-            box-shadow: 0 6px 0 var(--border);
+            background: var(--brown-main);
+            color: white; border: none; padding: 14px 28px; font-size: 1.1rem;
+            font-weight: 800; border-radius: 14px; cursor: pointer;
+            transition: background 0.2s, transform 0.1s; letter-spacing: 0.5px;
+            opacity: 0; animation: panFromSide 0.5s ease-out forwards;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
         }
-        .btn:hover:not(:disabled) { background: var(--bg-sand); border-color: var(--brown-light); transform: translateY(-4px); box-shadow: 0 10px 0 var(--brown-light); }
-        .btn:active:not(:disabled) { transform: translateY(6px); box-shadow: 0 0 0 transparent; animation: none; }
-        .btn:disabled { opacity: 0.5 !important; cursor: not-allowed; animation: none; box-shadow: none; }
+        .btn:hover { background: var(--brown-dark); }
+        .btn:active { transform: scale(0.96); }
         
-        .btn-primary { background: var(--peach-main); color: white; border: none; box-shadow: 0 6px 0 #d99171; }
-        .btn-primary:hover:not(:disabled) { background: #df9b7e; box-shadow: 0 10px 0 #cc8261; }
-        .btn-danger { background: #ffebeb; border-color: #ffc4c4; color: #cc4444; box-shadow: 0 6px 0 #ffc4c4; }
+        .btn-lang { background: var(--peach-light); color: var(--brown-dark); border: 2px solid var(--peach-main); margin: 10px; width: 100%; max-width: 250px; }
+        .btn-lang:hover { background: var(--peach-main); color: white; }
 
-        .ledger { list-style: none; margin-bottom: 20px; max-height: 200px; overflow-y: auto; padding-right: 10px; }
-        .ledger li { background: var(--bg-sand); border: 2px solid var(--border); padding: 15px; border-radius: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 6px solid var(--peach-main); font-weight: 800; font-size: 1.1rem; color: var(--brown-dark); animation: twistIn 0.5s forwards; }
+        .tutorial-stage { min-height: 280px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .tut-graphic { font-size: 4rem; margin-bottom: 20px; display: inline-block; }
+        .tut-text { font-size: 1.25rem; font-weight: 700; max-width: 550px; line-height: 1.5; margin-bottom: 30px; }
+        .tut-nav-row { display: flex; justify-content: center; gap: 15px; width: 100%; max-width: 400px; margin: 0 auto; }
+        .btn-tut-nav { flex: 1; padding: 12px; font-weight: 800; border-radius: 12px; cursor: pointer; font-size: 1rem; text-transform: uppercase; }
+        .btn-tut-back { background: var(--surface); border: 2px solid var(--border); color: var(--brown-dark); }
+        .btn-tut-next { background: var(--peach-main); border: none; color: white; }
+
+        .anim-slide { animation: slidePoints 2.5s infinite ease-in-out; }
+        .anim-pulse { animation: pulseIcon 1.5s infinite alternate ease-in-out; }
+        .anim-shake { animation: shakeCard 2s infinite ease-in-out; }
+        .anim-bounce { animation: bounceBack 1.8s infinite ease-in-out; }
+
+        .workspace { display: flex; flex-direction: column; gap: 20px; }
         
-        #qr-preview { margin-top: 25px; text-align: center; }
-        #qr-preview img { max-width: 200px; border-radius: 16px; border: 4px solid var(--brown-light); animation: float 4s infinite alternate ease-in-out; }
+        .status-banner {
+            position: sticky; top: 10px; z-index: 100;
+            background: var(--surface); border: 2px solid var(--peach-main); border-radius: 16px;
+            padding: 12px 20px; text-align: center; color: var(--brown-dark); font-weight: 800; font-size: 1.2rem;
+            box-shadow: 0 10px 20px rgba(91, 70, 54, 0.04);
+            display: flex; justify-content: space-between; align-items: center; gap: 10px;
+            animation: panDown 0.5s ease-out;
+        }
+        .banner-info-chunk { display: flex; align-items: center; gap: 10px; }
+        .status-banner span { background: var(--peach-main); padding: 4px 14px; border-radius: 10px; color: white; }
+        .btn-back { background: var(--bg-sand); border: 1px solid var(--border); font-size: 0.85rem; padding: 6px 12px; border-radius: 8px; cursor: pointer; color: var(--brown-dark); font-weight: 700; }
 
-        /* --- AGGRESSIVE PRESENTATION OVERLAY --- */
-        #presentation-layer {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: var(--bg-sand); z-index: 9999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            overflow: hidden;
-            transition: background-color 0.5s ease;
+        .grid { display: grid; grid-template-columns: 1fr; gap: 15px; padding-bottom: 20px; }
+        
+        .country-card {
+            background: var(--surface); border: 2px solid var(--border); border-radius: 16px;
+            padding: 14px; display: flex; flex-direction: column; gap: 12px;
+            opacity: 0; transition: transform 0.2s, border-color 0.2s, opacity 0.3s;
+        }
+        .country-card.disabled { opacity: 0.3 !important; pointer-events: none; filter: grayscale(70%); }
+
+        .c-header { display: flex; align-items: center; gap: 15px; }
+        .flag { width: 44px; height: 32px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(0,0,0,0.1); }
+        .c-info { flex-grow: 1; text-align: left; }
+        .c-name { font-weight: 800; font-size: 1.15rem; color: var(--brown-dark); line-height: 1.2; }
+        .c-song { font-size: 0.9rem; color: var(--text-muted); margin-top: 2px; font-weight: 600; }
+
+        .c-actions { display: flex; gap: 10px; }
+        .btn-preview { flex: 1; background: var(--bg-sand); border: 2px solid var(--border); color: var(--brown-dark); border-radius: 10px; padding: 10px; font-weight: 800; font-size: 0.95rem; cursor: pointer; }
+        .btn-vote { flex: 2; background: var(--peach-main); color: white; border: none; border-radius: 10px; padding: 10px; font-weight: 800; font-size: 1rem; cursor: pointer; }
+        
+        .video-wrap { width: 100%; aspect-ratio: 16/9; border-radius: 10px; overflow: hidden; display: none; background: #000; position: relative; }
+        .video-wrap.active { display: block; animation: expandDown 0.3s ease; }
+        .video-wrap iframe { width: 100%; height: 100%; border: none; }
+        .yt-fallback { position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.7); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; }
+
+        .sidebar { background: var(--surface); border: 2px solid var(--border); border-radius: 20px; padding: 20px; }
+        .sidebar h3 { color: var(--brown-main); font-size: 1.1rem; margin-bottom: 15px; text-transform: uppercase; text-align: center; font-weight: 800; letter-spacing: 1px; }
+        .slot {
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--bg-sand); border: 1px solid var(--border); padding: 8px 12px; border-radius: 12px; margin-bottom: 8px;
+            animation: panFromSide 0.4s ease-out backwards;
+        }
+        .slot-meta { display: flex; align-items: center; gap: 10px; }
+        .slot-actions { display: flex; align-items: center; gap: 10px; }
+        .slot-pts { background: var(--brown-light); color: white; font-weight: 800; padding: 4px 10px; border-radius: 8px; font-size: 0.85rem; }
+        .btn-edit-slot { background: transparent; border: none; color: var(--peach-main); font-weight: 800; font-size: 0.85rem; cursor: pointer; text-decoration: underline; }
+
+        @media (min-width: 768px) {
+            .workspace { flex-direction: row; align-items: flex-start; }
+            .main-area { flex: 1; height: 80vh; overflow-y: auto; padding-right: 15px; }
+            .main-area::-webkit-scrollbar { width: 8px; }
+            .main-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+            .grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+            .sidebar { width: 340px; position: sticky; top: 10px; }
         }
 
-        /* The 12-Points Drumroll Dark Mode */
-        .drumroll-active { background-color: #030108 !important; }
-        .drumroll-active .r-sentence { color: #ffffff !important; }
-        .drumroll-active .r-points { animation: drumrollShake 0.1s infinite alternate !important; filter: drop-shadow(0 0 30px rgba(255, 0, 127, 0.6)); color: var(--peach-main) !important; text-shadow: none !important; }
-        .drumroll-active .r-country { display: none !important; } 
-
-        .namecard-wrapper { text-align: center; }
-        .nc-badge { font-size: 2rem; text-transform: uppercase; letter-spacing: 8px; color: var(--brown-light); font-weight: 900; margin-bottom: 15px; }
-        .nc-name { font-size: 7rem; font-weight: 900; color: var(--brown-dark); text-transform: uppercase; letter-spacing: 4px; text-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-
-        .reveal-wrapper { text-align: center; width: 100%; max-width: 1200px; padding: 40px; position: relative; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;}
+        @keyframes panFromSide { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes panUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes panDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes expandDown { from { opacity: 0; transform: scaleY(0.8); transform-origin: top; } to { opacity: 1; transform: scaleY(1); transform-origin: top; } }
         
-        .r-sentence { font-size: 3.5rem; font-weight: 800; color: var(--brown-dark); transition: color 0.5s; }
-        .r-sentence span.voter { color: var(--brown-main); font-weight: 900; }
-        .r-sentence span.action { color: var(--text-muted); font-weight: 700; font-size: 2.5rem; display: block; margin: 5px 0; text-transform: lowercase; }
-        
-        .r-points { 
-            font-size: 14rem; font-weight: 900; line-height: 1; margin: 20px 0;
-            color: var(--peach-main); text-shadow: 6px 6px 0px rgba(212, 163, 115, 0.4);
-            display: inline-block; transition: color 0.5s;
-        }
-        .r-points.max { color: var(--brown-dark); text-shadow: 8px 8px 0px var(--peach-main), -8px -8px 0px var(--peach-light); }
-        
-        .r-country { display: flex; align-items: center; justify-content: center; gap: 35px; margin-top: 30px; opacity: 1; transition: opacity 0.2s, transform 0.2s; }
-        .r-flag { width: 180px; height: 120px; object-fit: cover; border-radius: 16px; border: 4px solid rgba(0,0,0,0.05); box-shadow: 0 15px 30px rgba(91, 70, 54, 0.2); }
-        .r-target-text { font-size: 5rem; font-weight: 900; color: var(--brown-dark); text-transform: uppercase; text-align: left; line-height: 1.1; }
-        .r-target-text span.connective { font-size: 2.2rem; color: var(--text-muted); font-weight: 800; display: block; text-transform: lowercase; margin-bottom: 5px; }
+        @keyframes slidePoints { 0%, 100% { transform: translateX(-20px); opacity: 0.4; } 50% { transform: translateX(20px); opacity: 1; } }
+        @keyframes pulseIcon { from { transform: scale(0.9); filter: drop-shadow(0 0 0 rgba(0,0,0,0)); } to { transform: scale(1.1); filter: drop-shadow(0 4px 10px rgba(236,174,146,0.4)); } }
+        @keyframes shakeCard { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-6deg); } 75% { transform: rotate(6deg); } }
+        @keyframes bounceBack { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
 
-        .r-progress { 
-            position: absolute; 
-            bottom: 30px; 
-            left: 40px; 
-            color: var(--text-muted); 
-            font-size: 1.2rem; 
-            font-weight: 900; 
-            text-transform: uppercase; 
-            letter-spacing: 2px; 
-            z-index: 200;
+        /* Pictorial Canvas Container Graphics */
+        .pic-canvas {
+            width: 100%; max-width: 320px; height: 160px; background: var(--bg-sand);
+            border: 2px dashed var(--border); border-radius: 16px; margin-bottom: 25px;
+            position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden;
         }
 
-        .board-wrapper { width: 100%; max-width: 1100px; padding: 40px; height: 100vh; display: flex; flex-direction: column; }
-        .board-title { text-align: center; font-size: 3rem; color: var(--brown-dark); font-weight: 900; margin-bottom: 30px; text-transform: uppercase; text-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        
-        .table-container { 
-            flex-grow: 1; overflow-y: hidden; background: var(--surface); 
-            border: 4px solid var(--border); box-shadow: 0 20px 50px rgba(91, 70, 54, 0.1); 
-            padding: 15px; border-radius: 24px; position: relative;
-        }
-        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; position: relative; top: 0; }
-        th { padding: 15px 20px; color: var(--text-muted); text-transform: uppercase; font-size: 1rem; font-weight: 900; text-align: left; position: sticky; top: 0; z-index: 10; background: var(--surface); }
-        td { padding: 18px 20px; font-size: 1.4rem; color: var(--brown-dark); font-weight: 800; position: relative; background: var(--bg-sand); border: 2px solid var(--border); border-style: solid none; }
-        td:first-child { border-left-style: solid; border-top-left-radius: 16px; border-bottom-left-radius: 16px; }
-        td:last-child { border-right-style: solid; border-top-right-radius: 16px; border-bottom-right-radius: 16px; }
-        
-        tr:nth-child(1) td { background: var(--peach-light); border-color: var(--peach-main); color: var(--brown-dark); font-size: 1.8rem; font-weight: 900; }
-        
-        .board-flag { width: 60px; height: 40px; border-radius: 8px; margin-right: 20px; vertical-align: middle; border: 2px solid rgba(0,0,0,0.1); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        
-        .board-pts { text-align: right; color: var(--brown-main); font-weight: 900; font-size: 1.8rem; cursor: help; position: relative; }
-        .board-pts:hover { color: var(--accent-pink); }
+        .seq-box-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; padding: 10px;}
+        .seq-node { width: 36px; height: 36px; background: var(--surface); border: 2px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--brown-main); }
+        .seq-node.active { background: var(--peach-main); border-color: var(--peach-main); color: white; animation: cycleNodes 3s infinite ease-in-out; }
+        @keyframes cycleNodes { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); background: var(--brown-main); } }
 
-        .voter-tooltip {
-            position: absolute; right: 105%; top: 50%; transform: translateY(-50%) scale(0.5);
-            background: var(--brown-dark); color: var(--bg-sand); padding: 16px 20px;
-            border-radius: 16px; box-shadow: 0 15px 35px rgba(91, 70, 54, 0.4);
-            font-size: 1.1rem; font-weight: 800; text-align: left; white-space: nowrap;
-            z-index: 100; opacity: 0; pointer-events: none;
-            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            border: 3px solid var(--brown-main);
-        }
-        .board-pts:hover .voter-tooltip { opacity: 1; transform: translateY(-50%) scale(1); }
-        .tooltip-row { margin-bottom: 6px; border-bottom: 2px dashed rgba(255,255,255,0.15); padding-bottom: 6px; }
-        .tooltip-row:last-child { margin-bottom: 0; border-bottom: none; padding-bottom: 0; }
-        .tooltip-row span.pts-val { color: var(--peach-main); font-weight: 900; margin-left: 12px; font-size: 1.2rem; }
+        .mock-video-card { width: 180px; height: 100px; background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 8px; display: flex; flex-direction: column; justify-content: space-between; }
+        .mock-play-btn { background: var(--peach-main); border-radius: 6px; height: 24px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 800; }
+        .mock-play-btn { animation: pulsePlay 1.4s infinite alternate ease-in-out; }
+        @keyframes pulsePlay { from { transform: scale(1); background: var(--peach-main); } to { transform: scale(1.04); background: var(--brown-main); } }
 
-        /* Animations */
-        @keyframes elasticDrop { 0% { opacity: 0; transform: translateY(-100px) scale(0.8); } 70% { transform: translateY(15px) scale(1.05); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
-        @keyframes elasticSlam { 0% { opacity: 0; transform: translateX(100px) scale(0.5); } 70% { transform: translateX(-15px) scale(1.1); opacity: 1; } 100% { opacity: 1; transform: translateX(0) scale(1); } }
-        @keyframes springUp { 0% { opacity: 0; transform: translateY(100px) scale(0.8); } 60% { transform: translateY(-20px) scale(1.05); opacity: 1; } 100% { opacity: 1; transform: translateY(0) scale(1); } }
-        @keyframes twistIn { 0% { opacity: 0; transform: translateX(50px) rotate(10deg); } 100% { opacity: 1; transform: translateX(0) rotate(0); } }
-        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
+        .lock-container { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .mock-flag-card { padding: 8px 14px; background: var(--surface); border: 2px solid var(--border); border-radius: 10px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+        .mock-lock-icon { font-size: 1.8rem; animation: lockStamp 2s infinite ease-in-out; }
+        @keyframes lockStamp { 0%, 100% { transform: scale(1) rotate(0); opacity: 0.5; } 50% { transform: scale(1.2) rotate(-10deg); opacity: 1; color: var(--peach-main); } }
 
-        @keyframes hyperCinematic {
-            0% { opacity: 0; transform: scale(0.2) rotate(-15deg); filter: blur(20px); }
-            15% { opacity: 1; transform: scale(1.1) rotate(5deg); filter: blur(0); }
-            25% { transform: scale(1) rotate(0); }
-            85% { opacity: 1; transform: scale(1) rotate(0); filter: blur(0); }
-            100% { opacity: 0; transform: scale(2) rotate(10deg); filter: blur(15px); }
-        }
-        @keyframes slamFromLeft { 0% { opacity: 0; transform: translateX(-100vw) skewX(20deg); } 60% { transform: translateX(30px) skewX(-10deg); opacity: 1; } 100% { opacity: 1; transform: translateX(0) skewX(0); } }
-        @keyframes slamFromRight { 0% { opacity: 0; transform: translateX(100vw) skewX(-20deg); } 60% { transform: translateX(-30px) skewX(10deg); opacity: 1; } 100% { opacity: 1; transform: translateX(0) skewX(0); } }
-        @keyframes popOutPoints { 0% { transform: scale(0) rotate(-20deg); opacity: 0; } 50% { transform: scale(1.4) rotate(10deg); opacity: 1; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
-        
-        @keyframes explode12Points { 
-            0% { transform: scale(0); opacity: 0; } 
-            20% { transform: scale(1.8) rotate(-5deg); opacity: 1; } 
-            30% { transform: scale(1.4) rotate(5deg); } 
-            100% { transform: scale(1.5) rotate(0); opacity: 1; } 
-        }
-        @keyframes screenShake {
-            0%, 100% { transform: translate(0, 0) rotate(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translate(-8px, -8px) rotate(-1deg); }
-            20%, 40%, 60%, 80% { transform: translate(8px, 8px) rotate(1deg); }
-        }
-        @keyframes drumrollShake { from { transform: translate(-4px, -4px) rotate(-2deg); } to { transform: translate(4px, 4px) rotate(2deg); } }
-        @keyframes flipDown3D {
-            0% { opacity: 0; transform: rotateX(90deg) translateY(-50px); }
-            60% { transform: rotateX(-10deg) translateY(10px); opacity: 1; }
-            100% { opacity: 1; transform: rotateX(0) translateY(0); }
-        }
+        .timeline-mock { display: flex; align-items: center; gap: 15px; }
+        .arrow-indicator { font-size: 2rem; color: var(--brown-main); animation: arrowPing 1.5s infinite ease-in-out; }
+        @keyframes arrowPing { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-10px); color: var(--peach-main); } }
     </style>
 </head>
 <body>
 
-    <div id="dashboard-layer">
-        <header>
-            <h1>Eurovision 2026</h1>
-        </header>
+    <header>
+        <h1 id="header-title">Eurovision 2026</h1>
+    </header>
 
-        <div class="container dashboard-grid">
-            
-            <div class="card" style="animation-delay: 0s;">
-                <h2>1. Setup Code</h2>
-                <p class="desc">Upload the QR code image guests scan to join.</p>
-                <input type="file" accept="image/*" onchange="uploadQR(event)">
-                <div id="qr-preview"></div>
-            </div>
-
-            <div class="card" style="animation-delay: 0.1s;">
-                <h2>2. Voting Terminal</h2>
-                <p class="desc">Live connections and ballot status.</p>
-                <ul class="ledger" id="ledger"></ul>
-                <div style="display: flex; gap: 10px;">
-                    <button class="btn btn-danger" id="btn-lock" style="animation-delay: 0.2s;" onclick="toggleLock(true)">Lock Votes</button>
-                    <button class="btn hidden" id="btn-unlock" onclick="toggleLock(false)">Re-Open</button>
-                </div>
-            </div>
-
-            <div class="card" style="animation-delay: 0.2s; background: var(--peach-light); border-color: var(--peach-main);">
-                <h2 style="color: var(--brown-dark);">3. Broadcast</h2>
-                <p class="desc" style="color: var(--brown-main);">Launch the automated full-screen scoring sequence.</p>
-                <button class="btn btn-primary" id="btn-start" onclick="startShow()" disabled style="padding: 24px; font-size: 1.4rem; animation-delay: 0.3s; box-shadow: 0 10px 0 #cc8261;">Start Presentation!</button>
-                <button class="btn" style="margin-top: 15px; font-size: 1rem; color: var(--brown-light); background: transparent; border-color: transparent; box-shadow: none;" onclick="clearData()">Reset Memory</button>
-            </div>
-
-        </div>
-    </div>
-
-    <div id="presentation-layer" class="hidden">
+    <div class="container">
         
-        <div class="r-progress"><span id="r-prog-text"></span></div>
+        <div id="view-lang" class="card">
+            <h2 style="margin-bottom: 25px; color: var(--brown-dark);">Select Language / Wybierz Język</h2>
+            <button class="btn btn-lang" style="animation-delay: 0.1s;" onclick="initApp('en')">🇬🇧 English</button>
+            <button class="btn btn-lang" style="animation-delay: 0.2s;" onclick="initApp('pl')">🇵🇱 Polski</button>
+        </div>
+        
+        <div id="view-login" class="card hidden">
+            <h2 id="login-title" style="margin-bottom: 10px; color: var(--brown-dark);">Voter Setup</h2>
+            <p id="login-desc" style="color: var(--text-muted); margin-bottom: 20px;">Enter your name to unlock your scorecard.</p>
+            
+            <div id="gate-locked" class="hidden">
+                <h3 style="color: var(--peach-main); margin-bottom: 10px;">Voting Closed</h3>
+                <p style="color: var(--text-muted);">The host has paused submissions.</p>
+            </div>
 
-        <div id="view-namecard" class="namecard-wrapper hidden">
-            <div class="nc-badge" id="nc-badge-text">Next Ballots / Następne Głosy</div>
-            <div class="nc-name" id="nc-voter-title">VOTER</div>
+            <div id="gate-open">
+                <input type="text" id="voter-name-input" placeholder="Name / Imię">
+                <button class="btn" id="btn-enter" style="animation-delay: 0.1s;" onclick="startTutorialWizard()">Start</button>
+            </div>
         </div>
 
-        <div id="view-reveal" class="reveal-wrapper hidden">
-            <div class="r-sentence">
-                <span class="voter" id="r-voter">VOTER NAME</span>
-                <span class="action">gave / dał</span>
+        <div id="view-tutorial" class="card hidden">
+            <div id="tut-stage-container" class="tutorial-stage"></div>
+        </div>
+
+        <div id="view-workspace" class="workspace hidden">
+            <div class="main-area">
+                <div class="status-banner" id="banner">
+                    <div class="banner-info-chunk">
+                        <button class="btn-back" id="lbl-back-btn" onclick="stepBackwardTier()">&larr; Back</button>
+                        <span id="banner-pts">12</span>
+                    </div>
+                    <div id="banner-text">Points Allocation</div>
+                </div>
+                <div id="grid" class="grid"></div>
             </div>
-            <div class="r-points" id="r-points">12</div>
-            <div class="r-country">
-                <img src="" class="r-flag" id="r-flag">
-                <div class="r-target-text">
-                    <span class="connective">to / do</span>
-                    <span id="r-name">COUNTRY</span>
+            
+            <div class="sidebar">
+                <h3 id="side-title">Your Scorecard</h3>
+                <div id="slots"></div>
+                <div id="submit-area" class="hidden" style="margin-top: 25px; text-align: center;">
+                    <button class="btn" style="width: 100%;" id="btn-submit" onclick="submitBallot()">Submit</button>
                 </div>
             </div>
         </div>
 
-        <div id="view-board" class="board-wrapper hidden">
-            <div class="board-title">Grand Final Results / Wyniki Końcowe</div>
-            <div class="table-container" id="scroll-box">
-                <table id="leaderboard-table">
-                    <thead><tr><th style="width: 80px;">#</th><th>Country / Kraj</th><th style="text-align: right;">Total Points / Suma Punktów</th></tr></thead>
-                    <tbody id="board-tbody"></tbody>
-                </table>
-            </div>
+        <div id="view-success" class="card hidden">
+            <div style="font-size: 4rem; margin-bottom: 15px;">🎉</div>
+            <h2 id="success-title" style="color: var(--brown-dark); margin-bottom: 10px;">Ballot Sent!</h2>
+            <p id="success-desc" style="color: var(--text-muted);">Look at the host screen for the results.</p>
         </div>
 
     </div>
 
     <script>
         const COUNTRIES = [
-            { id: "DK", name: "Denmark", namePl: "Dania", flag: "dk" },
-            { id: "DE", name: "Germany", namePl: "Niemcy", flag: "de" },
-            { id: "IL", name: "Israel", namePl: "Izrael", flag: "il" },
-            { id: "BE", name: "Belgium", namePl: "Belgia", flag: "be" },
-            { id: "AL", name: "Albania", namePl: "Albania", flag: "al" },
-            { id: "GR", name: "Greece", namePl: "Grecja", flag: "gr" },
-            { id: "UA", name: "Ukraine", namePl: "Ukraina", flag: "ua" },
-            { id: "AU", name: "Australia", namePl: "Australia", flag: "au" },
-            { id: "SR", name: "Serbia", namePl: "Serbia", flag: "rs" },
-            { id: "MT", name: "Malta", namePl: "Malta", flag: "mt" },
-            { id: "CZ", name: "Czechia", namePl: "Czechy", flag: "cz" },
-            { id: "BG", name: "Bulgaria", namePl: "Bułgaria", flag: "bg" },
-            { id: "HR", name: "Croatia", namePl: "Chorwacja", flag: "hr" },
-            { id: "GB", name: "United Kingdom", namePl: "Wielka Brytania", flag: "gb" },
-            { id: "FR", name: "France", namePl: "Francja", flag: "fr" },
-            { id: "MD", name: "Moldova", namePl: "Mołdawia", flag: "md" },
-            { id: "FI", name: "Finland", namePl: "Finlandia", flag: "fi" },
-            { id: "PL", name: "Poland", namePl: "Polska", flag: "pl" },
-            { id: "LT", name: "Lithuania", namePl: "Litwa", flag: "lt" },
-            { id: "SE", name: "Sweden", namePl: "Szwecja", flag: "se" },
-            { id: "CY", name: "Cyprus", namePl: "Cypr", flag: "cy" },
-            { id: "IT", name: "Italy", namePl: "Włochy", flag: "it" },
-            { id: "NO", name: "Norway", namePl: "Norwegia", flag: "no" },
-            { id: "RO", name: "Romania", namePl: "Rumunia", flag: "ro" },
-            { id: "AT", name: "Austria", namePl: "Austria", flag: "at" }
+            { id: "AT", name: "Austria", artist: "COSMÓ", song: "Tanzschein", yt: "KaqC5FnvAE4", flag: "at" },
+            { id: "AL", name: "Albania", artist: "Alis", song: "Nân", yt: "ENb4LCX_D_U", flag: "al" },
+            { id: "AU", name: "Australia", artist: "Delta Goodrem", song: "Eclipse", yt: "aqTUoOqAgaI", flag: "au" },
+            { id: "BE", name: "Belgium", artist: "ESSYLA", song: "Dancing on the Ice", yt: "WkXkIfOa_vQ", flag: "be" },
+            { id: "BG", name: "Bulgaria", artist: "DARA", song: "Bangaranga", yt: "UqDqZkEosgQ", flag: "bg" },
+            { id: "HR", name: "Croatia", artist: "LELEK", song: "Andromeda", yt: "YIBjarbF-c8", flag: "hr" },
+            { id: "CY", name: "Cyprus", artist: "Antigoni", song: "JALLA", yt: "W2Enx0tP-Q8", flag: "cy" },
+            { id: "CZ", name: "Czechia", artist: "Daniel Zizka", song: "CROSSROADS", yt: "kR1E2x3_8aQ", flag: "cz" },
+            { id: "DK", name: "Denmark", artist: "Søren Torpegaard Lund", song: "Før Vi Går Hjem", yt: "3sPqXFqQ-40", flag: "dk" },
+            { id: "FI", name: "Finland", artist: "Linda Lampenius x Pete Parkkonen", song: "Liekinheitin", yt: "lRxSN-mV09Q", flag: "fi" },
+            { id: "FR", name: "France", artist: "Monroe", song: "Regarde !", yt: "kiGDvM14Kwg", flag: "fr" },
+            { id: "DE", name: "Germany", artist: "Sarah Engels", song: "Fire", yt: "mFj2sA3E2Yw", flag: "de" },
+            { id: "GR", name: "Greece", artist: "Akylas", song: "Ferto", yt: "1E-WlqD2J7w", flag: "gr" },
+            { id: "IL", name: "Israel", artist: "Noam Bettan", song: "Michelle", yt: "1_hYcEYG-74", flag: "il" },
+            { id: "IT", name: "Italy", artist: "Sal Da Vinci", song: "Per Sempre Sì", yt: "pBwXGz5p4v0", flag: "it" },
+            { id: "LT", name: "Lithuania", artist: "Lion Ceccah", song: "Sólo Quiero Más", yt: "f1A-nO_m7y8", flag: "lt" },
+            { id: "MT", name: "Malta", artist: "AIDAN", song: "Bella", yt: "x5M3h-o1cXY", flag: "mt" },
+            { id: "MD", name: "Moldova", artist: "Satoshi", song: "Viva, Moldova!", yt: "mQ9uB7oWmb8", flag: "md" },
+            { id: "NO", name: "Norway", artist: "JONAS LOVV", song: "YA YA YA", yt: "X-x-N2q22mE", flag: "no" },
+            { id: "PL", name: "Poland", artist: "ALICJA", song: "Pray", yt: "YjB9Yn27tS0", flag: "pl" },
+            { id: "RO", name: "Romania", artist: "Alexandra Căpitănescu", song: "Choke Me", yt: "Z28p-G-w1xQ", flag: "ro" },
+            { id: "SR", name: "Serbia", artist: "LAVINA", song: "Kraj Mene", yt: "Z3QY1A1yP4w", flag: "rs" },
+            { id: "SE", name: "Sweden", artist: "FELICIA", song: "My System", yt: "W1Bovq9P6F4", flag: "se" },
+            { id: "UA", name: "Ukraine", artist: "LELÉKA", song: "Ridnym", yt: "Z8Z51no1Pu0", flag: "ua" },
+            { id: "GB", name: "United Kingdom", artist: "LOOK MUM NO COMPUTER", song: "Eins, Zwei, Drei", yt: "mvsA0Gq8V1M", flag: "gb" }
         ];
 
         const TIERS = [2, 4, 6, 8, 10, 12];
         const STORE_KEY = "ESC_BALLOTS_26";
         const LOCK_KEY = "ESC_LOCK_26";
-        const QR_KEY = "ESC_QR_26";
 
-        let votersPool = [], currentVoterIdx = 0, currentTierIdx = 0;
-        let presentationTimer = null, scrollInterval = null;
+        let lang = "en", name = "", tierIdx = 0, ballot = {}, tutorialScreenIdx = 0;
 
-        window.onload = () => { sync(); setInterval(sync, 2000); };
+        const i18n = {
+            en: {
+                logTitle: "Voter Setup", logDesc: "Enter your name to unlock your scorecard.", btnEnter: "Start", errName: "Please enter your name.", errLock: "Voting is locked.", txtAssign: "Assigning", txtPts: "Points", txtPreview: "Preview", txtGive: "Give", txtReview: "Review Ballot", sideTitle: "Your Scorecard", btnSubmit: "Submit Ballot", succTitle: "Ballot Sent!", succDesc: "Look at the host screen for the results.", lblBack: "Back", lblEdit: "Edit",
+                lblNext: "Next", lblStartVoting: "Start Voting!",
+                tutSteps: [
+                    { 
+                        text: "You will give points sequentially across 6 distinct rounds, awarding exactly 2, 4, 6, 8, 10, and 12 points to different countries.", 
+                        html: `<div class="seq-box-row">
+                                    <div class="seq-node">2</div><div class="seq-node">4</div>
+                                    <div class="seq-node active">6</div><div class="seq-node">8</div>
+                                    <div class="seq-node">10</div><div class="seq-node">12</div>
+                               </div>` 
+                    },
+                    { 
+                        text: "Tap 'Preview' to open the song's official performance YouTube video link.", 
+                        html: `<div class="mock-video-card">
+                                    <div style="font-size:0.75rem; font-weight:700; color:var(--brown-dark)">Austria - Cosmó</div>
+                                    <div class="mock-play-btn">▶ Preview Performance</div>
+                               </div>` 
+                    },
+                    { 
+                        text: "Each country final contestant can only receive points once on your card.", 
+                        html: `<div class="lock-container">
+                                    <div class="mock-flag-card">🇸🇪 Sweden / Szwecja</div>
+                                    <div class="mock-lock-icon">🔒</div>
+                               </div>` 
+                    },
+                    { 
+                        text: "Made an error? Use 'Back' or 'Edit' to change your scores anytime before submitting.", 
+                        html: `<div class="timeline-mock">
+                                    <div class="slot-pts" style="background:var(--brown-main)">8 Pts</div>
+                                    <div class="arrow-indicator">←</div>
+                                    <div class="btn-back" style="margin:0; pointer-events:none;">Edit Slot</div>
+                               </div>` 
+                    }
+                ]
+            },
+            pl: {
+                logTitle: "Rejestracja", logDesc: "Wpisz imię, aby otworzyć kartę do głosowania.", btnEnter: "Dalej", errName: "Proszę podać imię.", errLock: "Głosowanie zablokowane.", txtAssign: "Przyznajesz", txtPts: "Punktów", txtPreview: "Podgląd", txtGive: "Daj", txtReview: "Potwierdź", sideTitle: "Twoje Punkty", btnSubmit: "Wyślij Głos", succTitle: "Wysłano!", succDesc: "Spójrz na ekran główny, by zobaczyć wyniki.", lblBack: "Cofnij", lblEdit: "Zmień",
+                lblNext: "Dalej", lblStartVoting: "Rozpocznij!",
+                tutSteps: [
+                    { 
+                        text: "Punkty przyznajesz po kolei w 6 osobnych rundach, przekazując dokładnie 2, 4, 6, 8, 10 oraz 12 punktów różnym krajom.", 
+                        html: `<div class="seq-box-row">
+                                    <div class="seq-node">2</div><div class="seq-node">4</div>
+                                    <div class="seq-node active">6</div><div class="seq-node">8</div>
+                                    <div class="seq-node">10</div><div class="seq-node">12</div>
+                               </div>` 
+                    },
+                    { 
+                        text: "Kliknij 'Podgląd', aby załadować i obejrzeć fragment wideo z występem.", 
+                        html: `<div class="mock-video-card">
+                                    <div style="font-size:0.75rem; font-weight:700; color:var(--brown-dark)">Austria - Cosmó</div>
+                                    <div class="mock-play-btn">▶ Podgląd Występu</div>
+                               </div>` 
+                    },
+                    { 
+                        text: "Każdy kraj finalistów może otrzymać punkty tylko jeden raz na Twojej karcie.", 
+                        html: `<div class="lock-container">
+                                    <div class="mock-flag-card">🇸🇪 Szwecja / Sweden</div>
+                                    <div class="mock-lock-icon">🔒</div>
+                               </div>` 
+                    },
+                    { 
+                        text: "Pomyłka? Możesz użyć 'Cofnij' lub 'Zmień' w dowolnym momencie przed wysłaniem.", 
+                        html: `<div class="timeline-mock">
+                                    <div class="slot-pts" style="background:var(--brown-main)">8 Pkt</div>
+                                    <div class="arrow-indicator">←</div>
+                                    <div class="btn-back" style="margin:0; pointer-events:none;">Zmień</div>
+                               </div>` 
+                    }
+                ]
+            }
+        };
 
-        function sync() {
-            const qr = localStorage.getItem(QR_KEY);
-            if(qr) document.getElementById('qr-preview').innerHTML = `<img src="${qr}">`;
-            const locked = localStorage.getItem(LOCK_KEY) === "true";
-            document.getElementById('btn-lock').className = locked ? 'hidden' : 'btn btn-danger';
-            document.getElementById('btn-unlock').className = locked ? 'btn' : 'hidden';
+        function show(id) { document.querySelectorAll('.container > div').forEach(d => d.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
 
-            const data = JSON.parse(localStorage.getItem(STORE_KEY) || "[]");
-            const ledg = document.getElementById('ledger'); ledg.innerHTML = '';
+        function initApp(l) {
+            lang = l; const t = i18n[lang];
+            document.getElementById('login-title').innerText = t.logTitle;
+            document.getElementById('login-desc').innerText = t.logDesc;
+            document.getElementById('btn-enter').innerText = t.btnEnter;
+            document.getElementById('side-title').innerText = t.sideTitle;
+            document.getElementById('btn-submit').innerText = t.btnSubmit;
+            document.getElementById('success-title').innerText = t.succTitle;
+            document.getElementById('success-desc').innerText = t.succDesc;
+            document.getElementById('lbl-back-btn').innerText = `← ${t.lblBack}`;
             
-            if(data.length === 0) {
-                ledg.innerHTML = `<li style="justify-content:center; color:var(--text-muted); border:none; background:transparent;">No ballots yet...</li>`;
-                document.getElementById('btn-start').disabled = true;
+            show('view-login');
+            if (localStorage.getItem(LOCK_KEY) === "true") { document.getElementById('gate-open').classList.add('hidden'); document.getElementById('gate-locked').classList.remove('hidden'); }
+        }
+
+        function startTutorialWizard() {
+            const input = document.getElementById('voter-name-input').value.trim();
+            if(!input) return alert(i18n[lang].errName);
+            if(localStorage.getItem(LOCK_KEY) === "true") return alert(i18n[lang].errLock);
+            name = input;
+            tutorialScreenIdx = 0;
+            
+            show('view-tutorial');
+            renderTutorialScreen();
+        }
+
+        function renderTutorialScreen() {
+            const t = i18n[lang];
+            const currentStep = t.tutSteps[tutorialScreenIdx];
+            const targetBox = document.getElementById('tut-stage-container');
+            
+            const isFirst = tutorialScreenIdx === 0;
+            const isLast = tutorialScreenIdx === t.tutSteps.length - 1;
+
+            targetBox.innerHTML = `
+                <div class="pic-canvas">
+                    ${currentStep.html}
+                </div>
+                <p class="tut-text">${currentStep.text}</p>
+                <div class="tut-nav-row">
+                    <button class="btn-tut-nav btn-tut-back ${isFirst ? 'hidden' : ''}" onclick="navigateTutorial(-1)">${t.lblBack}</button>
+                    <button class="btn-tut-nav btn-tut-next" onclick="navigateTutorial(1)">${isLast ? t.lblStartVoting : t.lblNext}</button>
+                </div>
+            `;
+        }
+
+        function navigateTutorial(direction) {
+            const t = i18n[lang];
+            tutorialScreenIdx += direction;
+
+            if (tutorialScreenIdx < 0) {
+                tutorialScreenIdx = 0;
+            } else if (tutorialScreenIdx >= t.tutSteps.length) {
+                engageWorkspace();
             } else {
-                data.forEach(d => { ledg.innerHTML += `<li><span>${d.name}</span> <span style="color:var(--brown-main); font-size:0.85rem;">SEALED ✓</span></li>`; });
-                document.getElementById('btn-start').disabled = !locked;
+                renderTutorialScreen();
             }
         }
 
-        function uploadQR(e) {
-            const f = e.target.files[0]; if(!f) return;
-            const r = new FileReader(); r.onload = ev => { localStorage.setItem(QR_KEY, ev.target.result); sync(); }; r.readAsDataURL(f);
+        function engageWorkspace() {
+            document.getElementById('header-title').innerText = name;
+            show('view-workspace');
+            buildGrid();
         }
 
-        function toggleLock(val) { localStorage.setItem(LOCK_KEY, val); sync(); }
-        function clearData() { if(confirm("Wipe all data?")) { localStorage.removeItem(STORE_KEY); localStorage.removeItem(LOCK_KEY); localStorage.removeItem(QR_KEY); sync(); } }
+        function buildGrid() {
+            const grid = document.getElementById('grid'); grid.innerHTML = '';
+            const bannerPts = document.getElementById('banner-pts');
+            const bannerText = document.getElementById('banner-text');
+            const t = i18n[lang];
 
-        function startShow() {
-            const data = JSON.parse(localStorage.getItem(STORE_KEY) || "[]");
-            if(data.length === 0) return;
+            syncSidebarView();
 
-            votersPool = data; 
-            currentVoterIdx = 0;
-            currentTierIdx = 0;
-
-            document.documentElement.requestFullscreen().catch(e => console.log(e));
-            document.getElementById('dashboard-layer').classList.add('hidden');
-            document.getElementById('presentation-layer').classList.remove('hidden');
-            
-            runPresentationPipeline();
-        }
-
-        function runPresentationPipeline() {
-            if(currentVoterIdx >= votersPool.length) {
-                showFinalLeaderboard();
+            if(tierIdx >= TIERS.length) {
+                bannerPts.innerText = "✓"; bannerText.innerText = t.txtReview;
+                grid.innerHTML = `<div class="card" style="margin-top: 20px; width:100%;"><h3 style="color:var(--brown-dark)">Complete! / Gotowe!</h3><p style="color:var(--text-muted); margin-top:5px;">Check your scoreboard card allocations.</p></div>`;
+                document.getElementById('submit-area').classList.remove('hidden');
                 return;
             }
 
-            if(currentTierIdx === 0) {
-                document.getElementById('view-reveal').classList.add('hidden');
-                document.getElementById('view-board').classList.add('hidden');
+            document.getElementById('submit-area').classList.add('hidden');
+            const pts = TIERS[tierIdx];
+            bannerPts.innerText = pts; bannerText.innerText = `${t.txtAssign} ${pts} ${t.txtPts}`;
+            
+            const used = Object.values(ballot);
+
+            COUNTRIES.forEach((c, i) => {
+                const isUsed = used.includes(c.id);
+                const card = document.createElement('div');
+                card.className = `country-card ${isUsed ? 'disabled' : ''}`;
+                card.style.animation = `panFromSide 0.4s ease-out ${i * 0.02}s forwards`;
                 
-                const card = document.getElementById('view-namecard');
-                document.getElementById('nc-voter-title').innerText = votersPool[currentVoterIdx].name;
-                card.classList.remove('hidden');
-                
-                card.style.animation = 'none'; card.offsetHeight;
-                card.style.animation = 'hyperCinematic 3.5s cubic-bezier(0.25, 1, 0.5, 1) forwards';
-
-                presentationTimer = setTimeout(() => {
-                    card.classList.add('hidden');
-                    document.getElementById('view-reveal').classList.remove('hidden');
-                    playVoterScoresFrame();
-                }, 3500);
-            } else {
-                playVoterScoresFrame();
-            }
-        }
-
-        function playVoterScoresFrame() {
-            const currentVoterObj = votersPool[currentVoterIdx];
-            const currentPointsBracket = TIERS[currentTierIdx];
-            const targetCountryId = currentVoterObj.ballot[currentPointsBracket];
-
-            const countryMeta = COUNTRIES.find(x => x.id === targetCountryId);
-            const isTwelve = (currentPointsBracket === 12);
-            
-            document.getElementById('r-voter').innerText = currentVoterObj.name;
-            document.getElementById('r-points').innerText = currentPointsBracket;
-            document.getElementById('r-flag').src = `https://flagcdn.com/w320/${countryMeta.flag}.png`;
-            document.getElementById('r-name').innerText = `${countryMeta.name} / ${countryMeta.namePl}`;
-            
-            const totalFramesCount = votersPool.length * TIERS.length;
-            const absoluteCurrentFrameIndex = (currentVoterIdx * TIERS.length) + (currentTierIdx + 1);
-            document.getElementById('r-prog-text').innerText = `Score / Wynik: ${absoluteCurrentFrameIndex} / ${totalFramesCount}`;
-
-            const ptsEl = document.getElementById('r-points');
-            const wrapper = document.getElementById('presentation-layer');
-
-            document.querySelector('.r-sentence').style.animation = 'none';
-            ptsEl.style.animation = 'none';
-            document.querySelector('.r-country').style.animation = 'none';
-            wrapper.style.animation = 'none';
-            wrapper.classList.remove('drumroll-active');
-            document.getElementById('view-reveal').offsetHeight; 
-
-            if(isTwelve) {
-                wrapper.classList.add('drumroll-active');
-                document.querySelector('.r-sentence').style.animation = `slamFromLeft 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards`;
-                ptsEl.classList.add('max');
-
-                presentationTimer = setTimeout(() => {
-                    wrapper.classList.remove('drumroll-active');
-                    wrapper.style.animation = 'screenShake 1s cubic-bezier(.36,.07,.19,.97) both';
-                    
-                    document.querySelector('.r-country').style.animation = `slamFromRight 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards`;
-                    ptsEl.style.animation = `explode12Points 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.5) forwards`;
-
-                    presentationTimer = setTimeout(() => { advance() }, 4500);
-                }, 4000); 
-
-            } else {
-                ptsEl.classList.remove('max');
-                document.querySelector('.r-sentence').style.animation = `slamFromLeft 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards`;
-                document.querySelector('.r-country').style.animation = `slamFromRight 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards`;
-                ptsEl.style.animation = `popOutPoints 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards`;
-
-                presentationTimer = setTimeout(() => { advance() }, 3500);
-            }
-
-            function advance() {
-                currentTierIdx++;
-                if(currentTierIdx >= TIERS.length) {
-                    currentTierIdx = 0;
-                    currentVoterIdx++;
-                }
-                runPresentationPipeline();
-            }
-        }
-
-        function showFinalLeaderboard() {
-            if(presentationTimer) clearTimeout(presentationTimer);
-            document.getElementById('view-reveal').classList.add('hidden');
-            document.getElementById('view-namecard').classList.add('hidden');
-            document.getElementById('view-board').classList.remove('hidden');
-
-            const ballots = JSON.parse(localStorage.getItem(STORE_KEY) || "[]");
-            
-            let tallies = {}; 
-            let voterBreakdowns = {}; 
-            COUNTRIES.forEach(c => { 
-                tallies[c.id] = 0; 
-                voterBreakdowns[c.id] = []; 
-            });
-            
-            ballots.forEach(u => {
-                Object.keys(u.ballot).forEach(p => {
-                    const cid = u.ballot[p];
-                    const ptsValue = parseInt(p);
-                    if(tallies[cid] !== undefined) {
-                        tallies[cid] += ptsValue;
-                        voterBreakdowns[cid].push({ voterName: u.name, ptsAwarded: ptsValue });
-                    }
-                });
-            });
-
-            Object.keys(voterBreakdowns).forEach(cid => {
-                voterBreakdowns[cid].sort((a, b) => b.ptsAwarded - a.ptsAwarded);
-            });
-
-            let ranked = COUNTRIES.map(c => ({ ...c, score: tallies[c.id] })).sort((a,b) => b.score - a.score);
-            
-            const tbody = document.getElementById('board-tbody'); tbody.innerHTML = '';
-            ranked.forEach((r, i) => {
-                let popupHtml = `<div class="voter-tooltip">`;
-                if(voterBreakdowns[r.id].length === 0) {
-                    popupHtml += `<div class="tooltip-row">No votes cast / Brak głosów</div>`;
-                } else {
-                    voterBreakdowns[r.id].forEach(vItem => {
-                        popupHtml += `
-                            <div class="tooltip-row">
-                                <strong>${vItem.voterName}</strong>: <span class="pts-val">+${vItem.ptsAwarded}</span>
-                            </div>`;
-                    });
-                }
-                popupHtml += `</div>`;
-
-                tbody.innerHTML += `
-                    <tr style="animation: flipDown3D 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) ${i*0.08}s backwards;">
-                        <td>${i+1}</td>
-                        <td><img src="https://flagcdn.com/w80/${r.flag}.png" class="board-flag"> ${r.name} / ${r.namePl}</td>
-                        <td class="board-pts">${r.score} Pts / Pkt ${popupHtml}</td>
-                    </tr>
+                card.innerHTML = `
+                    <div class="c-header">
+                        <img src="https://flagcdn.com/w80/${c.flag}.png" class="flag">
+                        <div class="c-info">
+                            <div class="c-name">${c.name}</div>
+                            <div class="c-song">${c.artist}</div>
+                        </div>
+                    </div>
+                    <div class="video-wrap" id="vid-${c.id}"></div>
+                    <div class="c-actions">
+                        <button class="btn btn-preview" onclick="togVid('${c.id}', '${c.yt}')" style="animation:none; opacity:1;">${t.txtPreview}</button>
+                        <button class="btn btn-vote" onclick="vote('${c.id}', ${pts})" style="animation:none; opacity:1;">${t.txtGive} ${pts}</button>
+                    </div>
                 `;
+                grid.appendChild(card);
             });
+        }
 
-            setTimeout(() => {
-                const scrollContainer = document.getElementById('scroll-box');
-                let scrollDirection = 1; 
-                
-                if(scrollInterval) clearInterval(scrollInterval);
-                
-                scrollInterval = setInterval(() => {
-                    const maxScroll = scrollContainer.scrollHeight - scrollContainer.clientHeight;
-                    if(document.querySelector('.board-pts:hover')) return;
+        function togVid(id, yt) {
+            const w = document.getElementById(`vid-${id}`);
+            if(w.classList.contains('active')) { 
+                w.classList.remove('active'); 
+                w.innerHTML = ''; 
+            } else { 
+                w.classList.add('active'); 
+                // Removed ?autoplay=1 to fix Error 153. Added target="_blank" fallback.
+                w.innerHTML = `
+                    <iframe src="https://www.youtube.com/embed/${yt}" allow="fullscreen"></iframe>
+                    <a href="https://www.youtube.com/watch?v=${yt}" target="_blank" class="yt-fallback">Watch on YouTube ↗</a>
+                `; 
+            }
+        }
 
-                    scrollContainer.scrollTop += scrollDirection * 1; 
+        function vote(cid, pts) {
+            ballot[pts] = cid;
+            tierIdx = Object.keys(ballot).length;
+            buildGrid();
+        }
 
-                    if (scrollContainer.scrollTop >= maxScroll - 1 && scrollDirection === 1) {
-                        scrollDirection = 0;
-                        setTimeout(() => { scrollDirection = -1; }, 2000);
-                    } else if (scrollContainer.scrollTop <= 1 && scrollDirection === -1) {
-                        scrollDirection = 0;
-                        setTimeout(() => { scrollDirection = 1; }, 2000);
-                    }
-                }, 30); 
-            }, 3000); 
+        function stepBackwardTier() {
+            if(tierIdx === 0) return;
+            tierIdx--;
+            const targetPointsValue = TIERS[tierIdx];
+            delete ballot[targetPointsValue];
+            buildGrid();
+        }
+
+        function triggerSlotEdit(targetPoints) {
+            const matchIdx = TIERS.indexOf(targetPoints);
+            if(matchIdx !== -1) {
+                tierIdx = matchIdx;
+                for (let i = matchIdx; i < TIERS.length; i++) {
+                    delete ballot[TIERS[i]];
+                }
+                buildGrid();
+            }
+        }
+
+        function syncSidebarView() {
+            const box = document.getElementById('slots');
+            box.innerHTML = '';
+            const t = i18n[lang];
+
+            TIERS.forEach(pts => {
+                const cid = ballot[pts];
+                if(cid) {
+                    const c = COUNTRIES.find(x => x.id === cid);
+                    const el = document.createElement('div');
+                    el.className = 'slot';
+                    el.innerHTML = `
+                        <div class="slot-meta">
+                            <img src="https://flagcdn.com/w40/${c.flag}.png" style="width:26px; border-radius:3px; border:1px solid rgba(0,0,0,0.1)">
+                            <span style="font-weight:700; font-size:0.9rem; color:var(--brown-dark)">${c.name}</span>
+                        </div>
+                        <div class="slot-actions">
+                            <button class="btn-edit-slot" onclick="triggerSlotEdit(${pts})">${t.lblEdit}</button>
+                            <div class="slot-pts">${pts}</div>
+                        </div>
+                    `;
+                    box.appendChild(el);
+                }
+            });
+        }
+
+        function submitBallot() {
+            let data = JSON.parse(localStorage.getItem(STORE_KEY) || "[]");
+            data = data.filter(b => b.name !== name);
+            data.push({ name, ballot });
+            localStorage.setItem(STORE_KEY, JSON.stringify(data));
+            show('view-success');
         }
     </script>
 </body>
-</html>
 </html>
